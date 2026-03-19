@@ -1,5 +1,5 @@
 """
-stAIylist Card Generator
+Claudio Card Generator
 Generates a 1080x1520 editorial style card using PIL/Pillow.
 Called by main.py via generate_card(weather, outfit, output_path, context).
 """
@@ -213,7 +213,7 @@ def _wrap_text(text, font, max_width):
 # --- Main Entry Point ---
 
 def generate_card(weather: dict, outfit: dict, output_path: str, context: str = "office") -> str:
-    """Render the full stAIylist style card and save as PNG. Returns output_path."""
+    """Render the full Claudio style card and save as PNG. Returns output_path."""
 
     img  = Image.new('RGB', (W, H), BG)
     draw = ImageDraw.Draw(img, 'RGBA')
@@ -234,7 +234,7 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
 
     # HEADER (y: 0 -> 142)
     draw.text((PAD, 36),      "BRIAN'S",   font=f['header_sub'],   fill=ACCENT, anchor='lm')
-    draw.text((PAD, 80),      "stAIylist", font=f['header_brand'], fill=DARK,   anchor='lm')
+    draw.text((PAD, 80),      "Claudio", font=f['header_brand'], fill=DARK,   anchor='lm')
     draw.text((W - PAD, 36),  day_str,     font=f['header_sub'],   fill=MID,        anchor='rm')
     draw.text((W - PAD, 80),  date_str,    font=f['header_brand'], fill=DARK,        anchor='rm')
     draw.text((W - PAD, 108), year_str,    font=f['item_brand'],   fill=LIGHT_MID,  anchor='rm')
@@ -328,7 +328,7 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
     tag_text   = "  .  ".join(style_tags)
     draw.text((W // 2, 1470), tag_text,
               font=f['footer_tag'], fill=MID, anchor='mm')
-    draw.text((W // 2, 1502), "stAIylist  .  Port Washington, NY",
+    draw.text((W // 2, 1502), "Claudio  .  Port Washington, NY",
               font=f['footer_tiny'], fill=LIGHT_MID, anchor='mm')
 
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
