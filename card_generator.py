@@ -153,7 +153,7 @@ def _gen_item_image(piece, client):
     )
     resp = client.images.generate(
         model="dall-e-3", prompt=prompt,
-        size="1024x1024", quality="standard", n=1
+        size="1024x1024", quality="hd", n=1
     )
     return _fetch(resp.data[0].url)
 
@@ -167,27 +167,41 @@ def _gen_look_image(outfit, context, weather, client):
         descs.append(f"{col}{' ' + mat if mat else ''} {name}".strip())
     outfit_str = ", ".join(descs)
 
-    loc = {
-        'office':        'walking confidently on a city sidewalk near office buildings',
-        'weekend':       'strolling through a vibrant urban neighborhood',
-        'date_night':    'standing outside an upscale restaurant in the evening',
-        'family_outing': 'in a sunlit city park',
-    }.get(context, 'on a stylish city street')
+    loc_scene = {
+        'office':        ('walking on a quiet city block near glass office buildings',
+                          'overcast urban daylight, diffused shadows'),
+        'weekend':       ('standing on a tree-lined residential street, slight motion in the leaves',
+                          'soft golden afternoon sun, long natural shadows'),
+        'date_night':    ('outside a dimly lit restaurant entrance, warm window light spilling onto the sidewalk',
+                          'dusk, ambient streetlight mixed with warm interior glow'),
+        'family_outing': ('in a city park, dappled light through trees',
+                          'bright spring midday, natural fill light'),
+    }.get(context, ('on a quiet city street', 'natural daylight, overcast'))
+
+    loc, light_cue = loc_scene
 
     temp = int(round(float(weather.get('current_temp', 65))))
     season = "autumn" if 45 <= temp <= 65 else ("winter" if temp < 45 else ("summer" if temp > 80 else "spring"))
 
     prompt = (
-        f"Full length editorial fashion photograph. "
-        f"Handsome, well-dressed man in his early 30s, {loc}. "
+        f"Photograph. Shot on a Leica SL2-S with a 75mm f/1.4 Summilux lens. "
+        f"A well-dressed man in his early 30s, {loc}. "
         f"He is wearing: {outfit_str}. "
-        f"{season.capitalize()} daylight. 50mm lens, shallow depth of field. "
-        f"Fashion magazine quality. Sharp focus on subject. "
-        f"Confident, natural posture. No text, no visible logos."
+        f"{light_cue}, {season}. "
+        f"Full-length frame, slight subject separation from background. "
+        f"Authentic photographic qualities: natural skin texture with visible pores, "
+        f"realistic fabric drape and slight creasing, true-to-life material sheen — "
+        f"matte wool looks matte, leather shows natural surface variation. "
+        f"Color grading is restrained and editorial, similar to a GQ or Esquire fashion story. "
+        f"Slight natural film grain. No artificial skin smoothing, no plastic or CGI sheen, "
+        f"no over-saturated colors, no digital compositing look. "
+        f"The image should be indistinguishable from a frame pulled from a professional fashion shoot. "
+        f"Subject has relaxed, natural posture — not stiff or posed. "
+        f"No text overlays, no visible brand logos."
     )
     resp = client.images.generate(
         model="dall-e-3", prompt=prompt,
-        size="1024x1792", quality="standard", n=1
+        size="1024x1792", quality="hd", n=1
     )
     return _fetch(resp.data[0].url)
 
