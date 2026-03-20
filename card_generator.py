@@ -1,16 +1,56 @@
 #!/usr/bin/env python3
 """
-Claudio Card Generator v2
+Claudio Card Generator v3
 Editorial style: DALL-E 3 flat-lay product images + full look portrait.
 Layout mirrors a professional stylist brief (Daily Outfit Brief format).
+Context-aware: loads claudio_context.md to personalise DALL-E prompts.
 """
 
-import os, io, math, concurrent.futures
+import os, io, re, math, concurrent.futures
 from datetime import datetime
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import httpx
 from openai import OpenAI
+
+# ─── Context File ─────────────────────────────────────────────────────────────
+_CTX_CACHE: dict = {}
+
+def _load_context() -> dict:
+    """Load and parse claudio_context.md into a usable dict (cached)."""
+    if _CTX_CACHE:
+        return _CTX_CACHE
+
+    ctx_path = Path(__file__).parent / "claudio_context.md"
+    if not ctx_path.exists():
+        _CTX_CACHE['subject'] = "a well-dressed man in his mid-30s, athletic build"
+        _CTX_CACHE['raw'] = ""
+        return _CTX_CACHE
+
+    raw = ctx_path.read_text(encoding='utf-8')
+    _CTX_CACHE['raw'] = raw
+
+    # Extract physical description from "Who I Am" section
+    who_match = re.search(r'## Who I Am\s+(.*?)(?=\n##|\Z)', raw, re.DOTALL)
+    if who_match:
+        who_text = who_match.group(1).strip()
+        # Pull build detail from parenthetical
+        build = "athletic build"
+        build_match = re.search(r'athletic build \(([^)]+)\)', who_text)
+        if build_match:
+            build = f"athletic build ({build_match.group(1)})"
+        age_match = re.search(r'(mid-\d0s|early \d0s|late \d0s)', who_text)
+        age = age_match.group(1) if age_match else "mid-30s"
+        _CTX_CACHE['subject'] = f"a well-dressed man in his {age}, {build}"
+    else:
+        _CTX_CACHE['subject'] = "a well-dressed man in his mid-30s, athletic build"
+
+    # Extract location
+    loc_match = re.search(r'Check weather for ([^(]+)\(home', raw)
+    _CTX_CACHE['home_location'] = loc_match.group(1).strip() if loc_match else "Port Washington, NY"
+
+    print(f"[ctx] Loaded context — subject: {_CTX_CACHE['subject']}")
+    return _CTX_CACHE
 
 # ─── Canvas ───────────────────────────────────────────────────────────────────
 W, H = 1080, 1520
@@ -158,6 +198,9 @@ def _gen_item_image(piece, client):
     return _fetch(resp.data[0].url)
 
 def _gen_look_image(outfit, context, weather, client):
+    ctx = _load_context()
+    subject = ctx.get('subject', 'a well-dressed man in his mid-30s, athletic build')
+
     pieces = outfit.get('pieces', [])
     descs = []
     for p in pieces:
@@ -185,7 +228,7 @@ def _gen_look_image(outfit, context, weather, client):
 
     prompt = (
         f"Photograph. Shot on a Leica SL2-S with a 75mm f/1.4 Summilux lens. "
-        f"A well-dressed man in his early 30s, {loc}. "
+        f"{subject.capitalize()}, {loc}. "
         f"He is wearing: {outfit_str}. "
         f"{light_cue}, {season}. "
         f"Full-length frame, slight subject separation from background. "
