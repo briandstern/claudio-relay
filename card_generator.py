@@ -322,7 +322,7 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
 
     # -- TOP WEATHER STRIP -----------------------------------------------------
     STRIP_Y = 46
-    wx_str  = f"{emoji}  {temp_f}\u00b0F  \u00b7  {condition}  \u00b7  Wind {wind_mph} mph{rain_str}"
+    wx_str  = f"{temp_f}\u00b0F  \u00b7  {condition}  \u00b7  Wind {wind_mph} mph{rain_str}"
     d.text((PAD, STRIP_Y), wx_str,        font=f['weather'], fill=DARK)
     d.text((W - PAD, STRIP_Y), date_str,  font=f['weather'], fill=MID, anchor='rt')
 
