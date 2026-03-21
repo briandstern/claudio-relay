@@ -128,7 +128,7 @@ def _load_fonts():
         'num':         _lf_px(sb, 28),
         'item_name':   _lf_px(sb, 32),
         'item_brand':  _lf_px(sr, 22),
-        'note':        _lf_px(si, 20),
+        'note':        _lf_px(si, 24),
         'note_attr':   _lf_px(sr, 18),
         'footer':      _lf_px(sb, 18),
         'footer_sm':   _lf_px(sr, 16),
@@ -285,100 +285,59 @@ def _generate_all_images(outfit, context, weather):
 
 def generate_card(weather: dict, outfit: dict, output_path: str, context: str = "office") -> str:
     """
-    Claudio Card v5 - split layout.
-    No header, no footer.
-    LEFT: weather strip + 2x2 items grid + palette
-    RIGHT: full portrait (no crop)
-    BOTTOM: stylist note
+    Claudio Card v6 — simplified.
+    LEFT:   2x2 item grid (images + name + brand)
+    RIGHT:  full portrait
+    BOTTOM: STYLIST TIP (large, fully wrapped)
+    No weather strip, no labels, no palette, no branding.
     """
-    now      = datetime.now()
-    day_str  = now.strftime("%A").upper()
-    date_str = now.strftime("%B %d, %Y").upper()
-
-    f    = _load_fonts()
-    imgs = _generate_all_images(outfit, context, weather)
-
+    f      = _load_fonts()
+    imgs   = _generate_all_images(outfit, context, weather)
     main_p = imgs.pop('_main_pieces', [])
-    ACC_CATS = {'ACCESSORIES', 'BELT', 'SCARF', 'WATCH'}
 
     canvas = Image.new('RGB', (W, H), BG)
     d      = ImageDraw.Draw(canvas)
 
-    # -- Weather / outfit data -------------------------------------------------
-    wmo_code   = weather.get('weathercode', 0)
-    # Accept Open-Meteo format (temperature_2m in C) or scheduled task format (current_temp/temp_f in F)
-    if 'temp_f' in weather:
-        temp_f = round(float(weather['temp_f']))
-    elif 'current_temp' in weather:
-        temp_f = round(float(weather['current_temp']))
-    else:
-        temp_c = weather.get('temperature_2m', 20)
-        temp_f = round(temp_c * 9 / 5 + 32)
-    if 'wind' in weather:
-        wind_mph = round(float(weather['wind']))
-    else:
-        wind_kph = weather.get('windspeed_10m', 0)
-        wind_mph = round(wind_kph * 0.621)
-    precip_pct = round(weather.get('precipitation_probability', weather.get('rain_prob', 0)))
-    emoji      = WMO_EMOJI.get(wmo_code, '\u2600')
-    condition  = WMO.get(wmo_code, 'Clear')
-    rain_str   = f'  \u00b7  {precip_pct}% rain' if precip_pct > 10 else ''
-    outfit_name  = outfit.get('name', "Today's Look")
     stylist_note = outfit.get('stylist_note', outfit.get('note', ''))
 
-    # -- TOP WEATHER STRIP -----------------------------------------------------
-    STRIP_Y = 46
-    wx_str  = f"{temp_f}\u00b0F  \u00b7  {condition}  \u00b7  Wind {wind_mph} mph{rain_str}"
-    d.text((PAD, STRIP_Y), wx_str,        font=f['weather'], fill=DARK)
-    d.text((W - PAD, STRIP_Y), date_str,  font=f['weather'], fill=MID, anchor='rt')
+    # -- COLUMN CONSTANTS -------------------------------------------------------
+    PAD      = 48
+    LEFT_W   = 460
+    COL_GAP  = 28
+    RIGHT_X  = PAD + LEFT_W + COL_GAP   # 536
+    RIGHT_W  = W - RIGHT_X - PAD        # 484
+    INNER    = W - 2 * PAD              # 984
+    BODY_TOP = PAD                       # no weather strip — start at top
 
-    wh        = f['weather'].getbbox(wx_str)[3]
-    strip_bot = STRIP_Y + wh + 26
-    d.line([(PAD, strip_bot), (W - PAD, strip_bot)], fill=DIVIDER, width=2)
-    BODY_TOP  = strip_bot + 34
-
-    # -- COLUMN CONSTANTS ------------------------------------------------------
-    LEFT_W  = 460
-    COL_GAP = 28
-    RIGHT_X = PAD + LEFT_W + COL_GAP   # 548
-    RIGHT_W = W - RIGHT_X - PAD        # 472
-
-    # -- RIGHT: PORTRAIT (full height, no crop) --------------------------------
+    # -- RIGHT: PORTRAIT --------------------------------------------------------
     look_img = imgs.get('look')
     portrait_bot = BODY_TOP
     if look_img:
-        lw, lh      = look_img.size
-        scale       = RIGHT_W / lw
-        new_ph      = int(lh * scale)
-        look_scaled = look_img.resize((RIGHT_W, new_ph), Image.LANCZOS)
-        canvas.paste(look_scaled, (RIGHT_X, BODY_TOP))
+        lw, lh  = look_img.size
+        scale   = RIGHT_W / lw
+        new_pw  = RIGHT_W
+        new_ph  = int(lh * scale)
+        portrait = look_img.resize((new_pw, new_ph), Image.LANCZOS)
+        canvas.paste(portrait, (RIGHT_X, BODY_TOP))
         portrait_bot = BODY_TOP + new_ph
 
-    # Outfit name + context below portrait
-    ctx_label = 'WEEKEND' if 'weekend' in context.lower() else 'OFFICE'
-    tag_y = portrait_bot + 22
-    d.text((RIGHT_X, tag_y),      outfit_name, font=f['item_name'], fill=DARK)
-    d.text((RIGHT_X, tag_y + 64), ctx_label,   font=f['section'],   fill=ACCENT)
-
-    # -- LEFT: 2x2 ITEM GRID ---------------------------------------------------
-    n      = len(main_p)
-    COLS   = 2
-    CX_GAP = 16
-    CW     = (LEFT_W - CX_GAP) // 2      # ~222px per cell
-    IMG_H  = int(CW * 1.28)              # ~284px image area
-    NAME_H  = 108
-    BRAND_H = 80
-    CH     = IMG_H + NAME_H + BRAND_H + 20
-    CY_GAP = 18
-    ROWS   = math.ceil(n / COLS) if n else 1
-
-    grid_top = BODY_TOP
+    # -- LEFT: 2x2 ITEM GRID ----------------------------------------------------
+    COLS    = 2
+    CX_GAP  = 16
+    CW      = (LEFT_W - CX_GAP) // 2    # 222 px
+    IMG_H   = int(CW * 1.28)            # 284 px
+    NAME_H  = round(32 * _S)            # ~89 px  (32 phone-px)
+    BRAND_H = round(22 * _S)            # ~61 px  (22 phone-px)
+    CH      = IMG_H + NAME_H + BRAND_H + 28
+    CY_GAP  = 18
+    n       = len(main_p)
+    ROWS    = math.ceil(n / COLS) if n else 1
 
     for i, piece in enumerate(main_p):
         row = i // COLS
         col = i % COLS
         cx  = PAD + col * (CW + CX_GAP)
-        cy  = grid_top + row * (CH + CY_GAP)
+        cy  = BODY_TOP + row * (CH + CY_GAP)
 
         d.rounded_rectangle([cx, cy, cx + CW, cy + CH], radius=10, fill=CELL_BG)
 
@@ -390,58 +349,41 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
             itm    = item_img.resize((nw, nh), Image.LANCZOS)
             canvas.paste(itm, (cx + (CW - nw) // 2, cy + (IMG_H - nh) // 2))
 
-        label_top = cy + IMG_H + 8
+        label_top = cy + IMG_H + 10
 
-        num_str = str(i + 1)
-        d.text((cx + 10, label_top), num_str, font=f['num'], fill=ACCENT)
-        num_w = f['num'].getbbox(num_str)[2]
-
+        # Item name — truncate to fit cell width
         name_txt = piece.get('name', '')
-        avail_w  = CW - num_w - 22
+        avail_w  = CW - 14
         while name_txt and f['item_name'].getbbox(name_txt)[2] > avail_w:
             name_txt = name_txt[:-1]
         if name_txt != piece.get('name', ''):
             name_txt = name_txt.rstrip() + '\u2026'
-        d.text((cx + 14 + num_w, label_top), name_txt, font=f['item_name'], fill=DARK)
+        d.text((cx + 10, label_top), name_txt, font=f['item_name'], fill=DARK)
 
-        col_nm    = _color_name(piece.get('color', '#888')).title()
+        # Brand + colour
         brand_txt = piece.get('brand', '')
+        col_nm    = piece.get('color_name', _color_name(piece.get('color', '#888'))).title()
         bl        = f"{col_nm}  \u00b7  {brand_txt}" if brand_txt else col_nm
         if f['item_brand'].getbbox(bl)[2] > CW - 16:
-            bl = col_nm
-        d.text((cx + 12, label_top + NAME_H), bl, font=f['item_brand'], fill=MID)
+            bl = brand_txt
+        d.text((cx + 12, label_top + NAME_H + 6), bl, font=f['item_brand'], fill=MID)
 
-    grid_bot = grid_top + ROWS * CH + (ROWS - 1) * CY_GAP
+    grid_bot = BODY_TOP + ROWS * CH + (ROWS - 1) * CY_GAP
 
-    # -- PALETTE (full width, below both columns) ------------------------------
-    SPLIT_BOT   = max(grid_bot, portrait_bot) + 50
+    # -- DIVIDER ----------------------------------------------------------------
+    SPLIT_BOT = max(grid_bot, portrait_bot) + 60
     d.line([(PAD, SPLIT_BOT), (W - PAD, SPLIT_BOT)], fill=DIVIDER, width=2)
-    PALETTE_TOP = SPLIT_BOT + 32
 
-    n_sw = max(len(main_p), 1)
-    sw   = min(140, (INNER - (n_sw - 1) * 18) // n_sw)
-    sh   = 72
-    for i, piece in enumerate(main_p):
-        sx  = PAD + i * (sw + 18)
-        rgb = _hex_rgb(piece.get('color', '#999999'))
-        d.rounded_rectangle([sx, PALETTE_TOP, sx + sw, PALETTE_TOP + sh], radius=8, fill=rgb)
-        cn  = _color_name(piece.get('color', '#888')).title()
-        d.text((sx + sw // 2, PALETTE_TOP + sh + 10), cn,
-               font=f['palette_lbl'], fill=LIGHT, anchor='mt')
+    # -- STYLIST TIP ------------------------------------------------------------
+    tip_y = SPLIT_BOT + 48
+    d.text((PAD, tip_y), 'STYLIST TIP', font=f['section'], fill=ACCENT)
 
-    pal_bot = PALETTE_TOP + sh + 56
-
-    # -- STYLIST NOTE ----------------------------------------------------------
+    note_y  = tip_y + round(22 * _S * 1.6)   # section line height + spacing
+    note_lh = round(24 * _S * 1.5)            # 24 phone-px × line-height 1.5
     if stylist_note:
-        d.line([(PAD, pal_bot), (W - PAD, pal_bot)], fill=DIVIDER, width=1)
-        note_y = pal_bot + 30
-        lh_n   = 88
-        lines  = _wrap(stylist_note, f['note'], INNER)
-        for line in lines[:3]:
+        for line in _wrap(stylist_note, f['note'], INNER):
             d.text((PAD, note_y), line, font=f['note'], fill=DARK)
-            note_y += lh_n
-        d.text((PAD, note_y + 10), "\u2014 Claudio  (Your AI Stylist)",
-               font=f['note_attr'], fill=MID)
+            note_y += note_lh
 
     canvas.save(output_path, 'PNG')
     return output_path
