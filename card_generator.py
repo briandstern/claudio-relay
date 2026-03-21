@@ -153,25 +153,28 @@ def _fetch(url):
     return Image.open(io.BytesIO(r.content)).convert('RGB')
 
 def _gen_item_image(piece, client):
-    """E-commerce product photography ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ clean white background, no AI gloss."""
+    """Simple clean product photo — white background, item only, no props."""
     col  = _color_name(piece.get('color', '#888888'))
     mat  = piece.get('material', '')
     name = piece.get('name', 'clothing item')
+    brand = piece.get('brand', '')
     mat_str = f"{mat} " if mat else ""
+    brand_str = f" by {brand}" if brand else ""
     prompt = (
-        f"Flat lay product photo on a pure white surface. A single {col} {mat_str}{name} "
-        f"placed flat on a white background, photographed from directly above. "
-        f"Clean and minimal: just the garment lying flat on white, nothing else. "
-        f"No people, no mannequins, no hangers, no studio equipment, no lighting stands, "
-        f"no backdrops, no props, no shadows, no brand logos, no text. "
-        f"Natural fabric texture: matte fabrics look matte, suede looks like suede, leather shows grain. "
-        f"Photorealistic, 8K detail, e-commerce flat-lay style."
+        f"Simple product photo of a {col} {mat_str}{name}{brand_str}. "
+        f"The item is shown alone on a clean pure white background, like an online store listing. "
+        f"Just the single garment by itself — nothing else in the image. "
+        f"No props, no other items, no knolling, no flat-lay accessories, no hands, no people. "
+        f"Natural fabric texture, true-to-life color. Professional e-commerce photo."
     )
-    resp = client.images.generate(
+        resp = client.images.generate(
         model="dall-e-3", prompt=prompt,
         size="1024x1024", quality="hd", n=1
     )
     return _fetch(resp.data[0].url)
+
+def _gen_look_image(outfit, context, weather, client):
+    """Portrait using Gemini (Nano Banana) with DALL-E-3 fallback."""
 
 def _gen_look_image(outfit, context, weather, client):
     """Portrait using Gemini (Nano Banana) with DALL-E-3 fallback."""
@@ -188,13 +191,14 @@ def _gen_look_image(outfit, context, weather, client):
     outfit_str = ", ".join(descs) if descs else "casual outfit"
 
     prompt = (
-        f"Full-body fashion portrait of ONE man, single person only. "
-        f"COMPLETE HEAD-TO-TOE shot — top of head down to shoes, full figure in frame. "
-        f"He is wearing ALL of these pieces simultaneously as one coordinated outfit: {outfit_str}. "
-        f"Clean off-white studio background. Relaxed confident posture, slight smile, facing camera. "
-        f"Sharp aspirational menswear — well put-together, fashion-forward. "
+        f"Full standing body shot of ONE man. SINGLE PERSON ONLY. "
+        f"CRITICAL: Show the COMPLETE figure — top of head at the top of frame, "
+        f"shoes and feet FULLY VISIBLE at the very BOTTOM of frame. Nothing cropped. "
+        f"He is wearing all of these pieces together as one outfit: {outfit_str}. "
+        f"Standing upright, hands relaxed at sides or in pockets, slight smile, facing camera. "
+        f"Clean off-white studio background. Sharp, well-dressed, aspirational menswear. "
         f"Short brown hair, green eyes, lean athletic build, mid-30s. "
-        f"Soft studio lighting, natural fabric drape. Photorealistic, magazine quality."
+        f"Soft even studio lighting. Photorealistic, full-length fashion catalog photo."
     )
 
     gemini_key = os.environ.get('GEMINI_API_KEY', '')
