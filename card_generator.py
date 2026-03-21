@@ -112,22 +112,22 @@ def _load_fonts():
     xb = ["/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf",
           "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"]
     return {
-        'headline':    _lf(sb, 44),   # DAILY OUTFIT BRIEF
-        'name':        _lf(xb, 36),   # Claudio
-        'sub':         _lf(sr, 28),   # date, city
-        'meta_k':      _lf(sb, 26),   # weather key labels
-        'meta_v':      _lf(sr, 26),   # weather values
-        'weather':     _lf(sb, 30),   # weather strip
-        'section':     _lf(sb, 26),   # FULL LOOK / FLAT LAY GRID
-        'num':         _lf(sb, 36),   # item numbers
-        'item_name':   _lf(sb, 34),   # item names (bold)
-        'item_brand':  _lf(sr, 28),   # color Â· brand detail
-        'note':        _lf(si, 32),   # stylist note italic
-        'note_attr':   _lf(sr, 26),   # â Claudio attribution
-        'footer':      _lf(sb, 28),   # footer label
-        'footer_sm':   _lf(sr, 24),   # footer subtext
-        'tag':         _lf(sr, 24),   # style tags
-        'palette_lbl': _lf(sr, 26),   # color name under swatch
+        'headline':    _lf(sb, 64),
+        'name':        _lf(xb, 52),
+        'sub':         _lf(sr, 42),
+        'meta_k':      _lf(sb, 42),
+        'meta_v':      _lf(sr, 42),
+        'weather':     _lf(sb, 42),
+        'section':     _lf(sb, 38),
+        'num':         _lf(sb, 46),
+        'item_name':   _lf(sb, 50),
+        'item_brand':  _lf(sr, 38),
+        'note':        _lf(si, 46),
+        'note_attr':   _lf(sr, 38),
+        'footer':      _lf(sb, 38),
+        'footer_sm':   _lf(sr, 36),
+        'tag':         _lf(sr, 36),
+        'palette_lbl': _lf(sr, 36),
     }
 
 # âââ Color Utilities ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
@@ -297,9 +297,11 @@ def _generate_all_images(outfit, context, weather):
 
 def generate_card(weather: dict, outfit: dict, output_path: str, context: str = "office") -> str:
     """
-    Render the Claudio editorial card at 1080Ã1920 (phone-optimised).
-    Stacked layout:
-      HEADER â FULL LOOK portrait (full-width crop) â FLAT LAY GRID â PALETTE â NOTE â FOOTER
+    Claudio Card v5 - split layout.
+    No header, no footer.
+    LEFT: weather strip + 2x2 items grid + palette
+    RIGHT: full portrait (no crop)
+    BOTTOM: stylist note
     """
     now      = datetime.now()
     day_str  = now.strftime("%A").upper()
@@ -310,214 +312,139 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
 
     main_p = imgs.pop('_main_pieces', [])
     ACC_CATS = {'ACCESSORIES', 'BELT', 'SCARF', 'WATCH'}
-    acc_p  = [p for p in outfit.get('pieces', [])
-              if p.get('category', '').upper() in ACC_CATS]
 
     canvas = Image.new('RGB', (W, H), BG)
     d      = ImageDraw.Draw(canvas)
 
-    # ââ Weather / outfit data âââââââââââââââââââââââââââââââââââââââââââââââââ
-    temp      = int(round(float(weather.get('current_temp', 60))))
-    wind      = int(round(float(weather.get('wind', 8))))
-    rain      = int(round(float(weather.get('rain_prob', 0))))
-    wcode     = int(weather.get('weathercode', 0))
-    condition = WMO.get(wcode, weather.get('condition', 'Clear'))
-    emoji     = WMO_EMOJI.get(wcode, '')
+    # -- Weather / outfit data -------------------------------------------------
+    wmo_code   = weather.get('weathercode', 0)
+    temp_c     = weather.get('temperature_2m', 20)
+    temp_f     = round(temp_c * 9 / 5 + 32)
+    wind_kph   = weather.get('windspeed_10m', 0)
+    wind_mph   = round(wind_kph * 0.621)
+    precip_pct = round(weather.get('precipitation_probability', 0))
+    emoji      = WMO_EMOJI.get(wmo_code, '\u2600')
+    condition  = WMO.get(wmo_code, 'Clear')
+    rain_str   = f'  \u00b7  {precip_pct}% rain' if precip_pct > 10 else ''
+    outfit_name  = outfit.get('name', "Today's Look")
+    stylist_note = outfit.get('note', '')
 
-    outfit_name  = outfit.get('name', 'The Edit')
-    stylist_note = outfit.get('stylist_note', '')
-    style_tags   = outfit.get('style_tags', [])
+    # -- TOP WEATHER STRIP -----------------------------------------------------
+    STRIP_Y = 46
+    wx_str  = f"{emoji}  {temp_f}\u00b0F  \u00b7  {condition}  \u00b7  Wind {wind_mph} mph{rain_str}"
+    d.text((PAD, STRIP_Y), wx_str,        font=f['weather'], fill=DARK)
+    d.text((W - PAD, STRIP_Y), date_str,  font=f['weather'], fill=MID, anchor='rt')
 
-    ctx_label = {
-        'office': 'Office Day', 'weekend': 'Weekend',
-        'date_night': 'Date Night', 'family_outing': 'Family Day',
-    }.get(context, 'Today')
+    wh        = f['weather'].getbbox(wx_str)[3]
+    strip_bot = STRIP_Y + wh + 26
+    d.line([(PAD, strip_bot), (W - PAD, strip_bot)], fill=DIVIDER, width=2)
+    BODY_TOP  = strip_bot + 34
 
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    # HEADER
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    y = PAD
+    # -- COLUMN CONSTANTS ------------------------------------------------------
+    LEFT_W  = 460
+    COL_GAP = 28
+    RIGHT_X = PAD + LEFT_W + COL_GAP   # 548
+    RIGHT_W = W - RIGHT_X - PAD        # 472
 
-    # Left: masthead
-    d.text((PAD, y), "DAILY OUTFIT BRIEF", font=f['headline'], fill=DARK)
-    hl_h = f['headline'].getbbox("DAILY OUTFIT BRIEF")[3]
-
-    # Right: name stack
-    d.text((W - PAD, y),          "BRIAN'S",  font=f['sub'],  fill=MID,  anchor='rt')
-    d.text((W - PAD, y + 30),     "Claudio",  font=f['name'], fill=DARK, anchor='rt')
-    name_h = f['name'].getbbox("Claudio")[3]
-    d.text((W - PAD, y + 30 + name_h + 6),
-           f"{day_str}, {date_str}", font=f['sub'], fill=MID, anchor='rt')
-
-    # Rule under masthead
-    r1y = y + max(hl_h, name_h + 70) + 16
-    d.line([(PAD, r1y), (W - PAD, r1y)], fill=DARK, width=2)
-
-    # Weather strip â emoji + temp + condition + wind, outfit name right-aligned
-    wy = r1y + 18
-    rain_str = f"  Â·  {rain}% rain" if rain >= 20 else ""
-    weather_str = f"{emoji}  {temp}Â°F  Â·  {condition}  Â·  Wind {wind} mph{rain_str}"
-    d.text((PAD,     wy), weather_str, font=f['weather'], fill=DARK)
-    d.text((W - PAD, wy), outfit_name, font=f['weather'], fill=ACCENT, anchor='rt')
-
-    wh = f['weather'].getbbox(weather_str)[3]
-    r2y = wy + wh + 16
-    d.line([(PAD, r2y), (W - PAD, r2y)], fill=DIVIDER, width=1)
-
-    BODY_TOP = r2y + 24
-
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    # FULL LOOK â full-width portrait, cropped to ~460px display height
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    PHOTO_DISPLAY_H = 460   # px shown on card (cropped from top of portrait)
-
-    d.text((PAD, BODY_TOP), "FULL LOOK", font=f['section'], fill=LIGHT)
-    photo_top = BODY_TOP + 36
-
+    # -- RIGHT: PORTRAIT (full height, no crop) --------------------------------
     look_img = imgs.get('look')
+    portrait_bot = BODY_TOP
     if look_img:
-        ow, oh   = look_img.size
-        # Scale to fill inner width, then crop height
-        scale    = INNER / ow
-        lw, lh   = INNER, int(oh * scale)
-        resized  = look_img.resize((lw, lh), Image.LANCZOS)
-        crop_h   = min(PHOTO_DISPLAY_H, lh)
-        cropped  = resized.crop((0, 0, lw, crop_h))
-        canvas.paste(cropped, (PAD, photo_top))
+        lw, lh      = look_img.size
+        scale       = RIGHT_W / lw
+        new_ph      = int(lh * scale)
+        look_scaled = look_img.resize((RIGHT_W, new_ph), Image.LANCZOS)
+        canvas.paste(look_scaled, (RIGHT_X, BODY_TOP))
+        portrait_bot = BODY_TOP + new_ph
 
-        # Subtle overlay labels on photo
-        d.text((PAD + lw - 14, photo_top + 14),
-               ctx_label.upper(), font=f['section'], fill=WHITE, anchor='rt')
-        time_str = now.strftime("%I:%M %p").lstrip("0")
-        d.text((PAD + lw - 14, photo_top + 46),
-               time_str, font=f['item_brand'], fill=WHITE, anchor='rt')
+    # Outfit name + context below portrait
+    ctx_label = 'WEEKEND' if 'weekend' in context.lower() else 'OFFICE'
+    tag_y = portrait_bot + 22
+    d.text((RIGHT_X, tag_y),      outfit_name, font=f['item_name'], fill=DARK)
+    d.text((RIGHT_X, tag_y + 64), ctx_label,   font=f['section'],   fill=ACCENT)
 
-    photo_bot = photo_top + PHOTO_DISPLAY_H + 24
+    # -- LEFT: 2x2 ITEM GRID ---------------------------------------------------
+    n      = len(main_p)
+    COLS   = 2
+    CX_GAP = 16
+    CW     = (LEFT_W - CX_GAP) // 2      # ~222px per cell
+    IMG_H  = int(CW * 1.28)              # ~284px image area
+    NAME_H = 58
+    BRAND_H = 46
+    CH     = IMG_H + NAME_H + BRAND_H + 20
+    CY_GAP = 18
+    ROWS   = math.ceil(n / COLS) if n else 1
 
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    # FLAT LAY GRID â 2 columns, max 4 items
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    d.text((PAD, photo_bot), "FLAT LAY GRID", font=f['section'], fill=LIGHT)
-    grid_top = photo_bot + 36
+    grid_top = BODY_TOP
 
-    n    = len(main_p)
-    cols = 2
-    rows = math.ceil(n / cols) if n else 1
+    for i, piece in enumerate(main_p):
+        row = i // COLS
+        col = i % COLS
+        cx  = PAD + col * (CW + CX_GAP)
+        cy  = grid_top + row * (CH + CY_GAP)
 
-    cx_gap  = 14
-    cy_gap  = 16
-    cw      = (INNER - (cols - 1) * cx_gap) // cols   # ~473 px
-    LABEL_H = 76   # bottom label zone inside each cell
+        d.rounded_rectangle([cx, cy, cx + CW, cy + CH], radius=10, fill=CELL_BG)
 
-    # Dynamically size rows to fill space between grid_top and RESERVED bottom
-    FOOTER_ZONE  = 130   # absolute footer height
-    PALETTE_ZONE = 130   # palette section height
-    NOTE_ZONE    = 150   # stylist note height (or 30 if no note)
-    note_reserve = NOTE_ZONE if stylist_note else 30
-    available_h  = H - grid_top - FOOTER_ZONE - PALETTE_ZONE - note_reserve - 20
-    ch           = min(480, max(240, (available_h - (rows - 1) * cy_gap) // max(rows, 1)))
-    img_area_h   = ch - LABEL_H
-
-    for idx, piece in enumerate(main_p):
-        col_i = idx % cols
-        row_i = idx // cols
-        cx    = PAD + col_i * (cw + cx_gap)
-        cy    = grid_top + row_i * (ch + cy_gap)
-
-        # Cell background
-        d.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=10, fill=CELL_BG)
-
-        # Product image (square, centred in image area)
-        item_img = imgs.get(f'item_{idx}')
+        item_img = imgs.get(f'item_{i}')
         if item_img:
-            sz      = min(cw - 20, img_area_h - 12)
-            resized = item_img.resize((sz, sz), Image.LANCZOS)
-            ix      = cx + (cw - sz) // 2
-            iy      = cy + (img_area_h - sz) // 2
-            canvas.paste(resized, (ix, iy))
+            iw, ih = item_img.size
+            sc     = min(CW / iw, IMG_H / ih)
+            nw, nh = int(iw * sc), int(ih * sc)
+            itm    = item_img.resize((nw, nh), Image.LANCZOS)
+            canvas.paste(itm, (cx + (CW - nw) // 2, cy + (IMG_H - nh) // 2))
 
-        # Number
-        num_str = f"{idx + 1}."
-        d.text((cx + 12, cy + img_area_h + 10), num_str, font=f['num'], fill=ACCENT)
+        label_top = cy + IMG_H + 8
+
+        num_str = str(i + 1)
+        d.text((cx + 10, label_top), num_str, font=f['num'], fill=ACCENT)
         num_w = f['num'].getbbox(num_str)[2]
 
-        # Item name (truncate to fit)
         name_txt = piece.get('name', '')
-        max_name_w = cw - num_w - 28
-        while name_txt and f['item_name'].getbbox(name_txt)[2] > max_name_w:
+        avail_w  = CW - num_w - 22
+        while name_txt and f['item_name'].getbbox(name_txt)[2] > avail_w:
             name_txt = name_txt[:-1]
         if name_txt != piece.get('name', ''):
-            name_txt = name_txt.rstrip() + 'â¦'
-        d.text((cx + 14 + num_w, cy + img_area_h + 12), name_txt,
-               font=f['item_name'], fill=DARK)
+            name_txt = name_txt.rstrip() + '\u2026'
+        d.text((cx + 14 + num_w, label_top), name_txt, font=f['item_name'], fill=DARK)
 
-        # Color Â· brand
-        brand_txt  = piece.get('brand', '')
-        col_name   = _color_name(piece.get('color', '#888')).title()
-        brand_line = f"{col_name}  Â·  {brand_txt}" if brand_txt else col_name
-        if f['item_brand'].getbbox(brand_line)[2] > cw - 20:
-            brand_line = col_name
-        d.text((cx + 12, cy + img_area_h + 12 + 40), brand_line,
-               font=f['item_brand'], fill=MID)
+        col_nm    = _color_name(piece.get('color', '#888')).title()
+        brand_txt = piece.get('brand', '')
+        bl        = f"{col_nm}  \u00b7  {brand_txt}" if brand_txt else col_nm
+        if f['item_brand'].getbbox(bl)[2] > CW - 16:
+            bl = col_nm
+        d.text((cx + 12, label_top + NAME_H), bl, font=f['item_brand'], fill=MID)
 
-    grid_bot = grid_top + rows * (ch + cy_gap) - cy_gap + 28
+    grid_bot = grid_top + ROWS * CH + (ROWS - 1) * CY_GAP
 
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    # TODAY'S PALETTE
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    d.text((PAD, grid_bot), "TODAY'S PALETTE", font=f['section'], fill=LIGHT)
-    pal_top = grid_bot + 34
+    # -- PALETTE (full width, below both columns) ------------------------------
+    SPLIT_BOT   = max(grid_bot, portrait_bot) + 50
+    d.line([(PAD, SPLIT_BOT), (W - PAD, SPLIT_BOT)], fill=DIVIDER, width=2)
+    PALETTE_TOP = SPLIT_BOT + 32
 
     n_sw = max(len(main_p), 1)
-    sw   = min(90, (INNER - (n_sw - 1) * 12) // n_sw)
-    sh   = 64
+    sw   = min(140, (INNER - (n_sw - 1) * 18) // n_sw)
+    sh   = 72
     for i, piece in enumerate(main_p):
-        sx  = PAD + i * (sw + 12)
+        sx  = PAD + i * (sw + 18)
         rgb = _hex_rgb(piece.get('color', '#999999'))
-        d.rounded_rectangle([sx, pal_top, sx + sw, pal_top + sh], radius=6, fill=rgb)
+        d.rounded_rectangle([sx, PALETTE_TOP, sx + sw, PALETTE_TOP + sh], radius=8, fill=rgb)
         cn  = _color_name(piece.get('color', '#888')).title()
-        d.text((sx + sw // 2, pal_top + sh + 8), cn,
+        d.text((sx + sw // 2, PALETTE_TOP + sh + 10), cn,
                font=f['palette_lbl'], fill=LIGHT, anchor='mt')
 
-    pal_bot = pal_top + sh + 38
+    pal_bot = PALETTE_TOP + sh + 56
 
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    # STYLIST NOTE â prominent, 32px italic
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    note_bot = pal_bot
+    # -- STYLIST NOTE ----------------------------------------------------------
     if stylist_note:
-        d.line([(PAD, pal_bot + 8), (W - PAD, pal_bot + 8)], fill=DIVIDER, width=1)
-        note_y     = pal_bot + 26
-        note_lines = _wrap(stylist_note, f['note'], INNER)
-        lh_n = 44
-        for i, line in enumerate(note_lines[:3]):
-            d.text((PAD, note_y + i * lh_n), line, font=f['note'], fill=DARK)
-        sig_y     = note_y + min(len(note_lines), 3) * lh_n + 10
-        d.text((PAD, sig_y), "â Claudio  (Your AI Stylist)", font=f['note_attr'], fill=MID)
-        note_bot = sig_y + 38
-
-    # Accessories (compact single line)
-    if acc_p:
-        parts   = [f"{p.get('name','')} ({p.get('brand','')})" if p.get('brand') else p.get('name','') for p in acc_p]
-        acc_str = "Also: " + ", ".join(parts)
-        if f['footer_sm'].getbbox(acc_str)[2] > INNER:
-            acc_str = acc_str[:int(len(acc_str)*0.8)] + 'â¦'
-        d.text((PAD, note_bot + 6), acc_str, font=f['footer_sm'], fill=MID)
-        note_bot += 36
-
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    # FOOTER â pinned to bottom
-    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    fy = H - 118
-    d.line([(PAD, fy), (W - PAD, fy)], fill=DIVIDER, width=1)
-    d.text((PAD, fy + 16),  "BRIAN'S PERSONAL STYLING",
-           font=f['footer'],    fill=DARK)
-    d.text((PAD, fy + 54),  "Powered by Claudio  Â·  Port Washington, NY",
-           font=f['footer_sm'], fill=MID)
-
-    if style_tags:
-        tags_str = "  Â·  ".join(t.upper() for t in style_tags[:3])
-        d.text((W - PAD, fy + 34), tags_str, font=f['tag'], fill=LIGHT, anchor='rt')
+        d.line([(PAD, pal_bot), (W - PAD, pal_bot)], fill=DIVIDER, width=1)
+        note_y = pal_bot + 30
+        lh_n   = 56
+        lines  = _wrap(stylist_note, f['note'], INNER)
+        for line in lines[:3]:
+            d.text((PAD, note_y), line, font=f['note'], fill=DARK)
+            note_y += lh_n
+        d.text((PAD, note_y + 10), "\u2014 Claudio  (Your AI Stylist)",
+               font=f['note_attr'], fill=MID)
 
     canvas.save(output_path, 'PNG')
     return output_path
