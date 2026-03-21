@@ -59,12 +59,12 @@ def _auth(authorization: str):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 def _telegram_send(image_bytes: bytes, caption: str):
-    """Synchronously send a photo to Telegram."""
+    """Synchronously send an image as a document to Telegram (no compression)."""
     with httpx.Client(timeout=60.0) as client:
         resp = client.post(
-            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto",
+            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument",
             data={"chat_id": TELEGRAM_CHAT_ID, "caption": caption},
-            files={"photo": ("card.png", image_bytes, "image/png")},
+            files={"document": ("card.png", image_bytes, "image/png")},
         )
     result = resp.json()
     if not result.get("ok"):
