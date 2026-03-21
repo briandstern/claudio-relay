@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
 """
 Claudio Card Generator v4
-Phone-optimised: 1080×1920 (9:16), minimum 28px body text, stacked layout.
-Layout: header → full-width editorial portrait → 2-col flat-lay grid → palette → note → footer.
+Phone-optimised: 1080Ã1920 (9:16), minimum 28px body text, stacked layout.
+Layout: header â full-width editorial portrait â 2-col flat-lay grid â palette â note â footer.
 Context-aware: loads claudio_context.md to personalise DALL-E prompts.
 """
 
-import os, io, re, math, concurrent.futures
+import os, io, re, math, concurrent.futures, time as _time
 from datetime import datetime
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import httpx
 from openai import OpenAI
 
-# ─── Context File ─────────────────────────────────────────────────────────────
+# âââ Context File âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 _CTX_CACHE: dict = {}
+_CTX_LOAD_TIME: float = 0.0
 
 def _load_context() -> dict:
     """Load and parse claudio_context.md into a usable dict (cached)."""
-    if _CTX_CACHE:
+    global _CTX_LOAD_TIME
+    if _CTX_CACHE and (_time.time() - _CTX_LOAD_TIME < 300):
         return _CTX_CACHE
+    _CTX_CACHE.clear()
 
     ctx_path = Path(__file__).parent / "claudio_context.md"
     if not ctx_path.exists():
@@ -46,16 +49,17 @@ def _load_context() -> dict:
     loc_match = re.search(r'Check weather for ([^(]+)\(home', raw)
     _CTX_CACHE['home_location'] = loc_match.group(1).strip() if loc_match else "Port Washington, NY"
 
-    print(f"[ctx] Loaded context — subject: {_CTX_CACHE['subject']}")
+    print(f"[ctx] Loaded context â subject: {_CTX_CACHE['subject']}")
+    _CTX_LOAD_TIME = _time.time()
     return _CTX_CACHE
 
 
-# ─── Canvas ───────────────────────────────────────────────────────────────────
+# âââ Canvas âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 W, H   = 1080, 1920
 PAD    = 60
 INNER  = W - 2 * PAD        # 960px usable width
 
-# ─── Palette ──────────────────────────────────────────────────────────────────
+# âââ Palette ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 BG      = (255, 255, 255)
 DARK    = (18,  18,  18 )
 MID     = (100, 94,  86 )
@@ -65,7 +69,7 @@ ACCENT  = (139, 115, 85 )
 WHITE   = (255, 255, 255)
 CELL_BG = (248, 246, 242)
 
-# ─── WMO Weather Codes ────────────────────────────────────────────────────────
+# âââ WMO Weather Codes ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 WMO = {
     0:"Clear Sky", 1:"Mainly Clear", 2:"Partly Cloudy", 3:"Overcast",
     45:"Fog", 48:"Fog", 51:"Drizzle", 53:"Drizzle", 55:"Drizzle",
@@ -75,15 +79,15 @@ WMO = {
     95:"Thunderstorm", 96:"Thunderstorm", 99:"Thunderstorm",
 }
 WMO_EMOJI = {
-    0:"☀",  1:"🌤", 2:"⛅", 3:"☁",
-    45:"🌫", 48:"🌫", 51:"🌦", 53:"🌦", 55:"🌧",
-    61:"🌦", 63:"🌧", 65:"🌧",
-    71:"🌨", 73:"❄", 75:"❄",  77:"❄",
-    80:"🌦", 81:"🌧", 82:"⛈",
-    95:"⛈", 96:"⛈", 99:"⛈",
+    0:"â",  1:"ð¤", 2:"â", 3:"â",
+    45:"ð«", 48:"ð«", 51:"ð¦", 53:"ð¦", 55:"ð§",
+    61:"ð¦", 63:"ð§", 65:"ð§",
+    71:"ð¨", 73:"â", 75:"â",  77:"â",
+    80:"ð¦", 81:"ð§", 82:"â",
+    95:"â", 96:"â", 99:"â",
 }
 
-# ─── Fonts ────────────────────────────────────────────────────────────────────
+# âââ Fonts ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 FONTS_DIR = Path(__file__).parent / "fonts"
 
 def _lf(paths, size):
@@ -117,16 +121,16 @@ def _load_fonts():
         'section':     _lf(sb, 26),   # FULL LOOK / FLAT LAY GRID
         'num':         _lf(sb, 36),   # item numbers
         'item_name':   _lf(sb, 34),   # item names (bold)
-        'item_brand':  _lf(sr, 28),   # color · brand detail
+        'item_brand':  _lf(sr, 28),   # color Â· brand detail
         'note':        _lf(si, 32),   # stylist note italic
-        'note_attr':   _lf(sr, 26),   # — Claudio attribution
+        'note_attr':   _lf(sr, 26),   # â Claudio attribution
         'footer':      _lf(sb, 28),   # footer label
         'footer_sm':   _lf(sr, 24),   # footer subtext
         'tag':         _lf(sr, 24),   # style tags
         'palette_lbl': _lf(sr, 26),   # color name under swatch
     }
 
-# ─── Color Utilities ──────────────────────────────────────────────────────────
+# âââ Color Utilities ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 def _hex_rgb(h):
     h = h.lstrip('#')
@@ -156,7 +160,7 @@ def _color_name(hex_c):
 def _luminance(rgb):
     return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 255000
 
-# ─── Text Utility ─────────────────────────────────────────────────────────────
+# âââ Text Utility âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 def _wrap(text, font, max_w):
     words = text.split()
@@ -171,7 +175,7 @@ def _wrap(text, font, max_w):
     if cur: lines.append(' '.join(cur))
     return lines
 
-# ─── Image Generation ─────────────────────────────────────────────────────────
+# âââ Image Generation âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 def _client():
     key = os.environ.get('OPENAI_API_KEY')
@@ -185,7 +189,7 @@ def _fetch(url):
     return Image.open(io.BytesIO(r.content)).convert('RGB')
 
 def _gen_item_image(piece, client):
-    """E-commerce product photography — clean white background, no AI gloss."""
+    """E-commerce product photography â clean white background, no AI gloss."""
     col  = _color_name(piece.get('color', '#888888'))
     mat  = piece.get('material', '')
     name = piece.get('name', 'clothing item')
@@ -194,7 +198,7 @@ def _gen_item_image(piece, client):
         f"Professional e-commerce product photography. Pure white background, soft studio lighting. "
         f"A single {col} {mat_str}{name}, laid flat or displayed cleanly. "
         f"The kind of product photo you would find on Mr Porter, SSENSE, or Nordstrom. "
-        f"Natural fabric texture and realistic drape — matte fabrics look matte, "
+        f"Natural fabric texture and realistic drape â matte fabrics look matte, "
         f"suede looks like suede, leather shows natural grain. "
         f"No AI artifacts, no floating garments, no impossible folds. "
         f"No people, no props, no text, no brand logos. 8K detail, photorealistic."
@@ -206,7 +210,7 @@ def _gen_item_image(piece, client):
     return _fetch(resp.data[0].url)
 
 def _gen_look_image(outfit, context, weather, client):
-    """Street-style editorial portrait — The Sartorialist aesthetic."""
+    """Street-style editorial portrait â The Sartorialist aesthetic."""
     ctx     = _load_context()
     subject = ctx.get('subject', 'a well-dressed man in his mid-30s, athletic build')
 
@@ -242,11 +246,11 @@ def _gen_look_image(outfit, context, weather, client):
         f"{light_cue}, {season}. "
         f"Full-length frame showing the complete outfit. Shallow depth of field, "
         f"subject separated from background. "
-        f"IMPORTANT: Subject is NOT looking at the camera — he is looking slightly to the side, "
+        f"IMPORTANT: Subject is NOT looking at the camera â he is looking slightly to the side, "
         f"in mid-stride, or his gaze is cast downward. Face may be partially turned. "
         f"The Sartorialist / GQ street-style aesthetic: candid, natural, never posed or stiff. "
         f"Authentic photographic qualities: natural skin texture, realistic fabric drape and "
-        f"slight creasing, true-to-life material sheen — matte wool looks matte, "
+        f"slight creasing, true-to-life material sheen â matte wool looks matte, "
         f"suede looks soft, leather shows natural grain variation. "
         f"Restrained, editorial color grading. Slight natural film grain. "
         f"No artificial skin smoothing, no plastic sheen, no studio backgrounds pretending "
@@ -289,13 +293,13 @@ def _generate_all_images(outfit, context, weather):
     return results
 
 
-# ─── Main Card Generator ──────────────────────────────────────────────────────
+# âââ Main Card Generator ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 def generate_card(weather: dict, outfit: dict, output_path: str, context: str = "office") -> str:
     """
-    Render the Claudio editorial card at 1080×1920 (phone-optimised).
+    Render the Claudio editorial card at 1080Ã1920 (phone-optimised).
     Stacked layout:
-      HEADER → FULL LOOK portrait (full-width crop) → FLAT LAY GRID → PALETTE → NOTE → FOOTER
+      HEADER â FULL LOOK portrait (full-width crop) â FLAT LAY GRID â PALETTE â NOTE â FOOTER
     """
     now      = datetime.now()
     day_str  = now.strftime("%A").upper()
@@ -312,7 +316,7 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
     canvas = Image.new('RGB', (W, H), BG)
     d      = ImageDraw.Draw(canvas)
 
-    # ── Weather / outfit data ─────────────────────────────────────────────────
+    # ââ Weather / outfit data âââââââââââââââââââââââââââââââââââââââââââââââââ
     temp      = int(round(float(weather.get('current_temp', 60))))
     wind      = int(round(float(weather.get('wind', 8))))
     rain      = int(round(float(weather.get('rain_prob', 0))))
@@ -329,9 +333,9 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
         'date_night': 'Date Night', 'family_outing': 'Family Day',
     }.get(context, 'Today')
 
-    # ══════════════════════════════════════════════════════════════════════════
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
     # HEADER
-    # ══════════════════════════════════════════════════════════════════════════
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
     y = PAD
 
     # Left: masthead
@@ -349,10 +353,10 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
     r1y = y + max(hl_h, name_h + 70) + 16
     d.line([(PAD, r1y), (W - PAD, r1y)], fill=DARK, width=2)
 
-    # Weather strip — emoji + temp + condition + wind, outfit name right-aligned
+    # Weather strip â emoji + temp + condition + wind, outfit name right-aligned
     wy = r1y + 18
-    rain_str = f"  ·  {rain}% rain" if rain >= 20 else ""
-    weather_str = f"{emoji}  {temp}°F  ·  {condition}  ·  Wind {wind} mph{rain_str}"
+    rain_str = f"  Â·  {rain}% rain" if rain >= 20 else ""
+    weather_str = f"{emoji}  {temp}Â°F  Â·  {condition}  Â·  Wind {wind} mph{rain_str}"
     d.text((PAD,     wy), weather_str, font=f['weather'], fill=DARK)
     d.text((W - PAD, wy), outfit_name, font=f['weather'], fill=ACCENT, anchor='rt')
 
@@ -362,9 +366,9 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
 
     BODY_TOP = r2y + 24
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # FULL LOOK — full-width portrait, cropped to ~460px display height
-    # ══════════════════════════════════════════════════════════════════════════
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    # FULL LOOK â full-width portrait, cropped to ~460px display height
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
     PHOTO_DISPLAY_H = 460   # px shown on card (cropped from top of portrait)
 
     d.text((PAD, BODY_TOP), "FULL LOOK", font=f['section'], fill=LIGHT)
@@ -390,9 +394,9 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
 
     photo_bot = photo_top + PHOTO_DISPLAY_H + 24
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # FLAT LAY GRID — 2 columns, max 4 items
-    # ══════════════════════════════════════════════════════════════════════════
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    # FLAT LAY GRID â 2 columns, max 4 items
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
     d.text((PAD, photo_bot), "FLAT LAY GRID", font=f['section'], fill=LIGHT)
     grid_top = photo_bot + 36
 
@@ -443,14 +447,14 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
         while name_txt and f['item_name'].getbbox(name_txt)[2] > max_name_w:
             name_txt = name_txt[:-1]
         if name_txt != piece.get('name', ''):
-            name_txt = name_txt.rstrip() + '…'
+            name_txt = name_txt.rstrip() + 'â¦'
         d.text((cx + 14 + num_w, cy + img_area_h + 12), name_txt,
                font=f['item_name'], fill=DARK)
 
-        # Color · brand
+        # Color Â· brand
         brand_txt  = piece.get('brand', '')
         col_name   = _color_name(piece.get('color', '#888')).title()
-        brand_line = f"{col_name}  ·  {brand_txt}" if brand_txt else col_name
+        brand_line = f"{col_name}  Â·  {brand_txt}" if brand_txt else col_name
         if f['item_brand'].getbbox(brand_line)[2] > cw - 20:
             brand_line = col_name
         d.text((cx + 12, cy + img_area_h + 12 + 40), brand_line,
@@ -458,9 +462,9 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
 
     grid_bot = grid_top + rows * (ch + cy_gap) - cy_gap + 28
 
-    # ══════════════════════════════════════════════════════════════════════════
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
     # TODAY'S PALETTE
-    # ══════════════════════════════════════════════════════════════════════════
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
     d.text((PAD, grid_bot), "TODAY'S PALETTE", font=f['section'], fill=LIGHT)
     pal_top = grid_bot + 34
 
@@ -477,9 +481,9 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
 
     pal_bot = pal_top + sh + 38
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # STYLIST NOTE — prominent, 32px italic
-    # ══════════════════════════════════════════════════════════════════════════
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    # STYLIST NOTE â prominent, 32px italic
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
     note_bot = pal_bot
     if stylist_note:
         d.line([(PAD, pal_bot + 8), (W - PAD, pal_bot + 8)], fill=DIVIDER, width=1)
@@ -489,7 +493,7 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
         for i, line in enumerate(note_lines[:3]):
             d.text((PAD, note_y + i * lh_n), line, font=f['note'], fill=DARK)
         sig_y     = note_y + min(len(note_lines), 3) * lh_n + 10
-        d.text((PAD, sig_y), "— Claudio  (Your AI Stylist)", font=f['note_attr'], fill=MID)
+        d.text((PAD, sig_y), "â Claudio  (Your AI Stylist)", font=f['note_attr'], fill=MID)
         note_bot = sig_y + 38
 
     # Accessories (compact single line)
@@ -497,22 +501,22 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
         parts   = [f"{p.get('name','')} ({p.get('brand','')})" if p.get('brand') else p.get('name','') for p in acc_p]
         acc_str = "Also: " + ", ".join(parts)
         if f['footer_sm'].getbbox(acc_str)[2] > INNER:
-            acc_str = acc_str[:int(len(acc_str)*0.8)] + '…'
+            acc_str = acc_str[:int(len(acc_str)*0.8)] + 'â¦'
         d.text((PAD, note_bot + 6), acc_str, font=f['footer_sm'], fill=MID)
         note_bot += 36
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # FOOTER — pinned to bottom
-    # ══════════════════════════════════════════════════════════════════════════
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    # FOOTER â pinned to bottom
+    # ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
     fy = H - 118
     d.line([(PAD, fy), (W - PAD, fy)], fill=DIVIDER, width=1)
     d.text((PAD, fy + 16),  "BRIAN'S PERSONAL STYLING",
            font=f['footer'],    fill=DARK)
-    d.text((PAD, fy + 54),  "Powered by Claudio  ·  Port Washington, NY",
+    d.text((PAD, fy + 54),  "Powered by Claudio  Â·  Port Washington, NY",
            font=f['footer_sm'], fill=MID)
 
     if style_tags:
-        tags_str = "  ·  ".join(t.upper() for t in style_tags[:3])
+        tags_str = "  Â·  ".join(t.upper() for t in style_tags[:3])
         d.text((W - PAD, fy + 34), tags_str, font=f['tag'], fill=LIGHT, anchor='rt')
 
     canvas.save(output_path, 'PNG')
