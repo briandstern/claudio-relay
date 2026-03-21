@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Claudio Card Generator v4
-Phone-optimised: 1080Ã1920 (9:16), minimum 28px body text, stacked layout.
-Layout: header â full-width editorial portrait â 2-col flat-lay grid â palette â note â footer.
+Phone-optimised: 1080ÃÂ1920 (9:16), minimum 28px body text, stacked layout.
+Layout: header Ã¢ÂÂ full-width editorial portrait Ã¢ÂÂ 2-col flat-lay grid Ã¢ÂÂ palette Ã¢ÂÂ note Ã¢ÂÂ footer.
 Context-aware: loads claudio_context.md to personalise DALL-E prompts.
 """
 
@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 import httpx
 from openai import OpenAI
 
-# âââ Context File âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Context File Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 _CTX_CACHE: dict = {}
 _CTX_LOAD_TIME: float = 0.0
 
@@ -49,17 +49,17 @@ def _load_context() -> dict:
     loc_match = re.search(r'Check weather for ([^(]+)\(home', raw)
     _CTX_CACHE['home_location'] = loc_match.group(1).strip() if loc_match else "Port Washington, NY"
 
-    print(f"[ctx] Loaded context â subject: {_CTX_CACHE['subject']}")
+    print(f"[ctx] Loaded context Ã¢ÂÂ subject: {_CTX_CACHE['subject']}")
     _CTX_LOAD_TIME = _time.time()
     return _CTX_CACHE
 
 
-# âââ Canvas âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Canvas Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 W, H   = 1080, 1920
 PAD    = 60
 INNER  = W - 2 * PAD        # 960px usable width
 
-# âââ Palette ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Palette Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 BG      = (255, 255, 255)
 DARK    = (18,  18,  18 )
 MID     = (100, 94,  86 )
@@ -69,7 +69,7 @@ ACCENT  = (139, 115, 85 )
 WHITE   = (255, 255, 255)
 CELL_BG = (248, 246, 242)
 
-# âââ WMO Weather Codes ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ WMO Weather Codes Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 WMO = {
     0:"Clear Sky", 1:"Mainly Clear", 2:"Partly Cloudy", 3:"Overcast",
     45:"Fog", 48:"Fog", 51:"Drizzle", 53:"Drizzle", 55:"Drizzle",
@@ -79,15 +79,15 @@ WMO = {
     95:"Thunderstorm", 96:"Thunderstorm", 99:"Thunderstorm",
 }
 WMO_EMOJI = {
-    0:"â",  1:"ð¤", 2:"â", 3:"â",
-    45:"ð«", 48:"ð«", 51:"ð¦", 53:"ð¦", 55:"ð§",
-    61:"ð¦", 63:"ð§", 65:"ð§",
-    71:"ð¨", 73:"â", 75:"â",  77:"â",
-    80:"ð¦", 81:"ð§", 82:"â",
-    95:"â", 96:"â", 99:"â",
+    0:"Ã¢ÂÂ",  1:"Ã°ÂÂÂ¤", 2:"Ã¢ÂÂ", 3:"Ã¢ÂÂ",
+    45:"Ã°ÂÂÂ«", 48:"Ã°ÂÂÂ«", 51:"Ã°ÂÂÂ¦", 53:"Ã°ÂÂÂ¦", 55:"Ã°ÂÂÂ§",
+    61:"Ã°ÂÂÂ¦", 63:"Ã°ÂÂÂ§", 65:"Ã°ÂÂÂ§",
+    71:"Ã°ÂÂÂ¨", 73:"Ã¢ÂÂ", 75:"Ã¢ÂÂ",  77:"Ã¢ÂÂ",
+    80:"Ã°ÂÂÂ¦", 81:"Ã°ÂÂÂ§", 82:"Ã¢ÂÂ",
+    95:"Ã¢ÂÂ", 96:"Ã¢ÂÂ", 99:"Ã¢ÂÂ",
 }
 
-# âââ Fonts ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Fonts Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 FONTS_DIR = Path(__file__).parent / "fonts"
 
 def _lf(paths, size):
@@ -117,20 +117,20 @@ def _load_fonts():
         'sub':         _lf(sr, 42),
         'meta_k':      _lf(sb, 42),
         'meta_v':      _lf(sr, 42),
-        'weather':     _lf(sb, 42),
-        'section':     _lf(sb, 38),
-        'num':         _lf(sb, 46),
-        'item_name':   _lf(sb, 50),
-        'item_brand':  _lf(sr, 38),
-        'note':        _lf(si, 46),
-        'note_attr':   _lf(sr, 38),
+        'weather':     _lf(sb, 72),
+        'section':     _lf(sb, 62),
+        'num':         _lf(sb, 76),
+        'item_name':   _lf(sb, 88),
+        'item_brand':  _lf(sr, 64),
+        'note':        _lf(si, 72),
+        'note_attr':   _lf(sr, 60),
         'footer':      _lf(sb, 38),
         'footer_sm':   _lf(sr, 36),
         'tag':         _lf(sr, 36),
-        'palette_lbl': _lf(sr, 36),
+        'palette_lbl': _lf(sr, 60),
     }
 
-# âââ Color Utilities ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Color Utilities Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 def _hex_rgb(h):
     h = h.lstrip('#')
@@ -160,7 +160,7 @@ def _color_name(hex_c):
 def _luminance(rgb):
     return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 255000
 
-# âââ Text Utility âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Text Utility Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 def _wrap(text, font, max_w):
     words = text.split()
@@ -175,7 +175,7 @@ def _wrap(text, font, max_w):
     if cur: lines.append(' '.join(cur))
     return lines
 
-# âââ Image Generation âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Image Generation Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 def _client():
     key = os.environ.get('OPENAI_API_KEY')
@@ -189,19 +189,19 @@ def _fetch(url):
     return Image.open(io.BytesIO(r.content)).convert('RGB')
 
 def _gen_item_image(piece, client):
-    """E-commerce product photography â clean white background, no AI gloss."""
+    """E-commerce product photography Ã¢ÂÂ clean white background, no AI gloss."""
     col  = _color_name(piece.get('color', '#888888'))
     mat  = piece.get('material', '')
     name = piece.get('name', 'clothing item')
     mat_str = f"{mat} " if mat else ""
     prompt = (
-        f"Professional e-commerce product photography. Pure white background, soft studio lighting. "
-        f"A single {col} {mat_str}{name}, laid flat or displayed cleanly. "
-        f"The kind of product photo you would find on Mr Porter, SSENSE, or Nordstrom. "
-        f"Natural fabric texture and realistic drape â matte fabrics look matte, "
-        f"suede looks like suede, leather shows natural grain. "
-        f"No AI artifacts, no floating garments, no impossible folds. "
-        f"No people, no props, no text, no brand logos. 8K detail, photorealistic."
+        f"Flat lay product photo on a pure white surface. A single {col} {mat_str}{name} "
+        f"placed flat on a white background, photographed from directly above. "
+        f"Clean and minimal: just the garment lying flat on white, nothing else. "
+        f"No people, no mannequins, no hangers, no studio equipment, no lighting stands, "
+        f"no backdrops, no props, no shadows, no brand logos, no text. "
+        f"Natural fabric texture: matte fabrics look matte, suede looks like suede, leather shows grain. "
+        f"Photorealistic, 8K detail, e-commerce flat-lay style."
     )
     resp = client.images.generate(
         model="dall-e-3", prompt=prompt,
@@ -210,7 +210,7 @@ def _gen_item_image(piece, client):
     return _fetch(resp.data[0].url)
 
 def _gen_look_image(outfit, context, weather, client):
-    """Street-style editorial portrait â The Sartorialist aesthetic."""
+    """Street-style editorial portrait Ã¢ÂÂ The Sartorialist aesthetic."""
     ctx     = _load_context()
     subject = ctx.get('subject', 'a well-dressed man in his mid-30s, athletic build')
 
@@ -246,11 +246,11 @@ def _gen_look_image(outfit, context, weather, client):
         f"{light_cue}, {season}. "
         f"Full-length frame showing the complete outfit. Shallow depth of field, "
         f"subject separated from background. "
-        f"IMPORTANT: Subject is NOT looking at the camera â he is looking slightly to the side, "
+        f"IMPORTANT: Subject is NOT looking at the camera Ã¢ÂÂ he is looking slightly to the side, "
         f"in mid-stride, or his gaze is cast downward. Face may be partially turned. "
         f"The Sartorialist / GQ street-style aesthetic: candid, natural, never posed or stiff. "
         f"Authentic photographic qualities: natural skin texture, realistic fabric drape and "
-        f"slight creasing, true-to-life material sheen â matte wool looks matte, "
+        f"slight creasing, true-to-life material sheen Ã¢ÂÂ matte wool looks matte, "
         f"suede looks soft, leather shows natural grain variation. "
         f"Restrained, editorial color grading. Slight natural film grain. "
         f"No artificial skin smoothing, no plastic sheen, no studio backgrounds pretending "
@@ -293,7 +293,7 @@ def _generate_all_images(outfit, context, weather):
     return results
 
 
-# âââ Main Card Generator ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Main Card Generator Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 def generate_card(weather: dict, outfit: dict, output_path: str, context: str = "office") -> str:
     """
@@ -369,8 +369,8 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
     CX_GAP = 16
     CW     = (LEFT_W - CX_GAP) // 2      # ~222px per cell
     IMG_H  = int(CW * 1.28)              # ~284px image area
-    NAME_H = 58
-    BRAND_H = 46
+    NAME_H  = 108
+    BRAND_H = 80
     CH     = IMG_H + NAME_H + BRAND_H + 20
     CY_GAP = 18
     ROWS   = math.ceil(n / COLS) if n else 1
@@ -438,7 +438,7 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
     if stylist_note:
         d.line([(PAD, pal_bot), (W - PAD, pal_bot)], fill=DIVIDER, width=1)
         note_y = pal_bot + 30
-        lh_n   = 56
+        lh_n   = 88
         lines  = _wrap(stylist_note, f['note'], INNER)
         for line in lines[:3]:
             d.text((PAD, note_y), line, font=f['note'], fill=DARK)
