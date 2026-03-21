@@ -1,6 +1,2 @@
-fastapi
-uvicorn[standard]
-httpx
-Pillow
-openai
-playwright
+fastapiuvicorn[standard]httpxPillowopenaiplaywright
+google-genai
