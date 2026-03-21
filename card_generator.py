@@ -6,10 +6,10 @@ Layout: header ÃÂ¢ÃÂÃÂ full-width editorial portrait ÃÂ¢Ã
 Context-aware: loads claudio_context.md to personalise DALL-E prompts.
 """
 
-import os, io, re, math, concurrent.futures, time as _time
+import base64, os, io, re, concurrent.futures
 from datetime import datetime
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 import httpx
 from openai import OpenAI
 
@@ -68,7 +68,7 @@ MID     = (100, 94,  86 )
 LIGHT   = (158, 150, 140)
 DIVIDER = (218, 212, 204)
 ACCENT  = (139, 115, 85 )
-WHITE   = (255, 255, 255)
+
 CELL_BG = (248, 246, 242)
 
 # ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ WMO Weather Codes ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
@@ -90,53 +90,6 @@ WMO_EMOJI = {
 }
 
 # ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Fonts ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
-FONTS_DIR = Path(__file__).parent / "fonts"
-
-def _lf(paths, size):
-    for p in paths:
-        if Path(p).exists():
-            try:
-                return ImageFont.truetype(str(p), size)
-            except Exception:
-                pass
-    return ImageFont.load_default()
-
-def _lf_px(paths, phone_px):
-    """Load font sized to render as phone_px on a ~390px-wide phone screen."""
-    return _lf(paths, round(phone_px * _S))
-
-def _load_fonts():
-    sb = [str(FONTS_DIR / "DMSans-Bold.ttf"),
-          "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
-          "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
-    sr = [str(FONTS_DIR / "DMSans-Regular.ttf"),
-          "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-          "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
-    si = [str(FONTS_DIR / "InstrumentSerif-Italic.ttf"),
-          "/usr/share/fonts/truetype/liberation/LiberationSerif-Italic.ttf",
-          "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Italic.ttf"]
-    xb = ["/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf",
-          "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"]
-    return {
-        'headline':    _lf_px(sb, 24),
-        'name':        _lf_px(xb, 22),
-        'sub':         _lf_px(sr, 18),
-        'meta_k':      _lf_px(sb, 18),
-        'meta_v':      _lf_px(sr, 18),
-        'weather':     _lf_px(sb, 26),
-        'section':     _lf_px(sb, 22),
-        'num':         _lf_px(sb, 28),
-        'item_name':   _lf_px(sb, 32),
-        'item_brand':  _lf_px(sr, 22),
-        'note':        _lf_px(si, 24),
-        'note_attr':   _lf_px(sr, 18),
-        'footer':      _lf_px(sb, 18),
-        'footer_sm':   _lf_px(sr, 16),
-        'tag':         _lf_px(sr, 16),
-        'palette_lbl': _lf_px(sr, 18),
-    }
-
-# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Color Utilities ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 
 def _hex_rgb(h):
     h = h.lstrip('#')
@@ -242,148 +195,154 @@ def _gen_look_image(outfit, context, weather, client):
     )
     return _fetch(resp.data[0].url)
 
-def _generate_all_images(outfit, context, weather):
-    """Generate images. Uses pre-provided image_url per piece when available; DALL-E only for portrait."""
+
+# ── Load All Images (items + portrait, parallel) ────────────────────────────
+def _load_all_images(outfit, context, weather):
+    """Fetch item images from URLs (DALL-E fallback) + generate portrait."""
     c = _client()
     ACC_CATS = {'ACCESSORIES', 'BELT', 'SCARF', 'WATCH'}
-    all_pieces  = outfit.get('pieces', [])
-    main_pieces = [p for p in all_pieces if p.get('category', '').upper() not in ACC_CATS][:4]
-    results     = {'_main_pieces': main_pieces}
+    pieces = [p for p in outfit.get('pieces', [])
+              if p.get('category', '').upper() not in ACC_CATS][:4]
 
-    def _load_piece_image(piece, idx):
-        """Download from image_url if provided, else generate via DALL-E."""
+    def fetch_piece(piece):
         url = piece.get('image_url')
         if url:
             try:
-                resp = httpx.get(url, timeout=30, follow_redirects=True)
-                resp.raise_for_status()
-                return Image.open(io.BytesIO(resp.content)).convert('RGB')
+                r = httpx.get(url, timeout=30, follow_redirects=True)
+                r.raise_for_status()
+                return Image.open(io.BytesIO(r.content)).convert('RGB')
             except Exception as e:
-                print(f"[warn] image_url fetch failed for piece {idx}: {e}")
-        # Fallback: DALL-E generation
+                print(f'[warn] item fetch failed: {e}')
         return _gen_item_image(piece, c)
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as ex:
-        item_futs = {ex.submit(_load_piece_image, p, i): i for i, p in enumerate(main_pieces)}
+    results = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as ex:
+        item_futs = {ex.submit(fetch_piece, p): i for i, p in enumerate(pieces)}
         look_fut  = ex.submit(_gen_look_image, outfit, context, weather, c)
 
         for fut, idx in item_futs.items():
             try:
                 results[f'item_{idx}'] = fut.result(timeout=60)
             except Exception as e:
-                print(f"[warn] item {idx} image failed: {e}")
-                rgb = _hex_rgb(main_pieces[idx].get('color', '#999999'))
-                results[f'item_{idx}'] = Image.new('RGB', (512, 512), rgb)
-
+                print(f'[warn] item {idx}: {e}')
+                results[f'item_{idx}'] = Image.new('RGB', (400, 400),
+                    _hex_rgb(pieces[idx].get('color', '#999999')))
         try:
             results['look'] = look_fut.result(timeout=120)
         except Exception as e:
-            print(f"[warn] look image failed: {e}")
-            results['look'] = Image.new('RGB', (512, 900), (240, 238, 234))
+            print(f'[warn] portrait failed: {e}')
+            results['look'] = None
 
-    return results
+    item_imgs = [results.get(f'item_{i}', Image.new('RGB', (400, 400), (200, 200, 200)))
+                 for i in range(len(pieces))]
+    return pieces, item_imgs, results.get('look')
 
+
+# ── HTML Card Builder ────────────────────────────────────────────────────────
+def _img_to_b64(img: Image.Image) -> str:
+    """Convert PIL Image to embedded JPEG data URI."""
+    buf = io.BytesIO()
+    img.convert('RGB').save(buf, format='JPEG', quality=88)
+    return 'data:image/jpeg;base64,' + base64.b64encode(buf.getvalue()).decode()
+
+
+def _build_card_html(pieces, item_imgs, look_img, stylist_note: str) -> str:
+    """Render outfit card as HTML string with base64-embedded images."""
+
+    # Item cells (2x2 grid)
+    cells_html = ''
+    for piece, img in zip(pieces, item_imgs):
+        b64        = _img_to_b64(img)
+        name       = piece.get('name', '')
+        brand      = piece.get('brand', '')
+        color_name = (piece.get('color_name', '') or '').title()
+        brand_line = f"{color_name} \u00b7 {brand}" if color_name and brand else brand
+        cells_html += f"""
+        <div class="cell">
+          <div class="cell-img"><img src="{b64}" alt="{name}"></div>
+          <div class="cell-text">
+            <div class="cell-name">{name}</div>
+            <div class="cell-brand">{brand_line}</div>
+          </div>
+        </div>"""
+
+    # Portrait
+    if look_img:
+        port_b64     = _img_to_b64(look_img)
+        portrait_tag = f'<img class="portrait" src="{port_b64}" alt="outfit">'
+    else:
+        portrait_tag = '<div class="portrait" style="background:#EDEBE5;"></div>'
+
+    note_safe = (stylist_note
+                 .replace('&', '&amp;')
+                 .replace('<', '&lt;')
+                 .replace('>', '&gt;'))
+
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+* {{ margin:0; padding:0; box-sizing:border-box; }}
+body {{
+  width: 800px;
+  background: #FAFAF8;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 36px 40px 48px;
+}}
+.top {{ display:flex; gap:20px; margin-bottom:32px; }}
+.grid {{ display:grid; grid-template-columns:1fr 1fr; gap:14px; width:368px; flex-shrink:0; }}
+.cell {{ background:#EDEBE5; border-radius:12px; overflow:hidden; }}
+.cell-img {{ background:#fff; padding:10px; }}
+.cell-img img {{ width:100%; height:188px; object-fit:contain; display:block; }}
+.cell-text {{ padding:11px 13px 15px; }}
+.cell-name {{ font-size:15px; font-weight:700; color:#111111; line-height:1.3; }}
+.cell-brand {{ font-size:12px; color:#7A7068; margin-top:5px; font-weight:400; }}
+.portrait-col {{ flex:1; min-width:0; }}
+.portrait {{
+  width:100%; height:100%; max-height:550px;
+  object-fit:cover; object-position:top center;
+  border-radius:12px; display:block;
+}}
+hr {{ border:none; border-top:1.5px solid #D5CEC8; margin-bottom:24px; }}
+.tip-label {{
+  font-size:11px; font-weight:700; letter-spacing:3px;
+  color:#8B7355; text-transform:uppercase; margin-bottom:16px;
+}}
+.tip-text {{
+  font-family:'Playfair Display', Georgia, serif;
+  font-style:italic; font-size:19px; line-height:1.75; color:#1A1A1A;
+}}
+</style>
+</head><body>
+  <div class="top">
+    <div class="grid">{cells_html}</div>
+    <div class="portrait-col">{portrait_tag}</div>
+  </div>
+  <hr>
+  <div class="tip-label">STYLIST TIP</div>
+  <div class="tip-text">{note_safe}</div>
+</body></html>"""
+
+
+# ── Card Generator (HTML → Playwright → PNG) ─────────────────────────────────
 def generate_card(weather: dict, outfit: dict, output_path: str, context: str = "office") -> str:
     """
-    Claudio Card v6 — simplified.
-    LEFT:   2x2 item grid (images + name + brand)
-    RIGHT:  full portrait
-    BOTTOM: STYLIST TIP (large, fully wrapped)
-    No weather strip, no labels, no palette, no branding.
+    Claudio Card v7 — HTML renderer.
+    Generates card as HTML, screenshots with Playwright Chromium → PNG.
     """
-    f      = _load_fonts()
-    imgs   = _generate_all_images(outfit, context, weather)
-    main_p = imgs.pop('_main_pieces', [])
-
-    canvas = Image.new('RGB', (W, H), BG)
-    d      = ImageDraw.Draw(canvas)
-
+    pieces, item_imgs, look_img = _load_all_images(outfit, context, weather)
     stylist_note = outfit.get('stylist_note', outfit.get('note', ''))
+    html         = _build_card_html(pieces, item_imgs, look_img, stylist_note)
 
-    # -- COLUMN CONSTANTS -------------------------------------------------------
-    PAD      = 48
-    LEFT_W   = 460
-    COL_GAP  = 28
-    RIGHT_X  = PAD + LEFT_W + COL_GAP   # 536
-    RIGHT_W  = W - RIGHT_X - PAD        # 484
-    INNER    = W - 2 * PAD              # 984
-    BODY_TOP = PAD                       # no weather strip — start at top
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(
+            args=['--no-sandbox', '--disable-setuid-sandbox',
+                  '--disable-dev-shm-usage', '--disable-gpu']
+        )
+        page = browser.new_page(viewport={'width': 800, 'height': 1100})
+        page.set_content(html, wait_until='networkidle', timeout=15000)
+        page.screenshot(path=output_path, full_page=True)
+        browser.close()
 
-    # -- RIGHT: PORTRAIT --------------------------------------------------------
-    look_img = imgs.get('look')
-    portrait_bot = BODY_TOP
-    if look_img:
-        lw, lh  = look_img.size
-        scale   = RIGHT_W / lw
-        new_pw  = RIGHT_W
-        new_ph  = int(lh * scale)
-        portrait = look_img.resize((new_pw, new_ph), Image.LANCZOS)
-        canvas.paste(portrait, (RIGHT_X, BODY_TOP))
-        portrait_bot = BODY_TOP + new_ph
-
-    # -- LEFT: 2x2 ITEM GRID ----------------------------------------------------
-    COLS    = 2
-    CX_GAP  = 16
-    CW      = (LEFT_W - CX_GAP) // 2    # 222 px
-    IMG_H   = int(CW * 1.28)            # 284 px
-    NAME_H  = round(32 * _S)            # ~89 px  (32 phone-px)
-    BRAND_H = round(22 * _S)            # ~61 px  (22 phone-px)
-    CH      = IMG_H + NAME_H + BRAND_H + 28
-    CY_GAP  = 18
-    n       = len(main_p)
-    ROWS    = math.ceil(n / COLS) if n else 1
-
-    for i, piece in enumerate(main_p):
-        row = i // COLS
-        col = i % COLS
-        cx  = PAD + col * (CW + CX_GAP)
-        cy  = BODY_TOP + row * (CH + CY_GAP)
-
-        d.rounded_rectangle([cx, cy, cx + CW, cy + CH], radius=10, fill=CELL_BG)
-
-        item_img = imgs.get(f'item_{i}')
-        if item_img:
-            iw, ih = item_img.size
-            sc     = min(CW / iw, IMG_H / ih)
-            nw, nh = int(iw * sc), int(ih * sc)
-            itm    = item_img.resize((nw, nh), Image.LANCZOS)
-            canvas.paste(itm, (cx + (CW - nw) // 2, cy + (IMG_H - nh) // 2))
-
-        label_top = cy + IMG_H + 10
-
-        # Item name — truncate to fit cell width
-        name_txt = piece.get('name', '')
-        avail_w  = CW - 14
-        while name_txt and f['item_name'].getbbox(name_txt)[2] > avail_w:
-            name_txt = name_txt[:-1]
-        if name_txt != piece.get('name', ''):
-            name_txt = name_txt.rstrip() + '\u2026'
-        d.text((cx + 10, label_top), name_txt, font=f['item_name'], fill=DARK)
-
-        # Brand + colour
-        brand_txt = piece.get('brand', '')
-        col_nm    = piece.get('color_name', _color_name(piece.get('color', '#888'))).title()
-        bl        = f"{col_nm}  \u00b7  {brand_txt}" if brand_txt else col_nm
-        if f['item_brand'].getbbox(bl)[2] > CW - 16:
-            bl = brand_txt
-        d.text((cx + 12, label_top + NAME_H + 6), bl, font=f['item_brand'], fill=MID)
-
-    grid_bot = BODY_TOP + ROWS * CH + (ROWS - 1) * CY_GAP
-
-    # -- DIVIDER ----------------------------------------------------------------
-    SPLIT_BOT = max(grid_bot, portrait_bot) + 60
-    d.line([(PAD, SPLIT_BOT), (W - PAD, SPLIT_BOT)], fill=DIVIDER, width=2)
-
-    # -- STYLIST TIP ------------------------------------------------------------
-    tip_y = SPLIT_BOT + 48
-    d.text((PAD, tip_y), 'STYLIST TIP', font=f['section'], fill=ACCENT)
-
-    note_y  = tip_y + round(22 * _S * 1.6)   # section line height + spacing
-    note_lh = round(24 * _S * 1.5)            # 24 phone-px × line-height 1.5
-    if stylist_note:
-        for line in _wrap(stylist_note, f['note'], INNER):
-            d.text((PAD, note_y), line, font=f['note'], fill=DARK)
-            note_y += note_lh
-
-    canvas.save(output_path, 'PNG')
     return output_path
