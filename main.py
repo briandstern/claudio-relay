@@ -2,10 +2,19 @@ from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
-import httpx, base64, os, tempfile
+import httpx, base64, os, sys, subprocess, tempfile
 from datetime import datetime
 from pathlib import Path
 from card_generator import generate_card, _CTX_CACHE
+
+# ── Playwright Chromium bootstrap ─────────────────────────────────────────
+# Uses sys.executable so browser path matches playwright.sync_api at runtime.
+_pw_install = subprocess.run(
+    [sys.executable, '-m', 'playwright', 'install', 'chromium', '--with-deps'],
+    capture_output=True, text=True
+)
+print(f'[playwright-install] rc={_pw_install.returncode}',
+      _pw_install.stderr[:300] if _pw_install.returncode != 0 else 'OK')
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID")
@@ -16,7 +25,7 @@ CONTEXT_FILENAME   = "claudio_context.md"
 CONTEXT_PATH       = Path(__file__).parent / CONTEXT_FILENAME
 SERVICE_URL        = os.environ.get("SERVICE_URL", "https://telegram-relay-production.up.railway.app")
 
-# ── Startup / Lifespan ───────────────────────────────────────────────────────
+# ââ Startup / Lifespan âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,7 +49,7 @@ app.add_middleware(
     allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
 )
 
-# ── Pydantic models ──────────────────────────────────────────────────────────
+# ââ Pydantic models ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 class SendCardRequest(BaseModel):
     image_base64: str
@@ -52,7 +61,7 @@ class GenerateAndSendRequest(BaseModel):
     context: str = "office"
     caption: str = ""
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ââ Helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 def _auth(authorization: str):
     if not API_SECRET or authorization != f"Bearer {API_SECRET}":
@@ -74,7 +83,7 @@ def _telegram_send(image_bytes: bytes, caption: str):
 async def _push_context_to_github(content: str):
     """Push updated claudio_context.md back to GitHub for persistence."""
     if not GITHUB_TOKEN:
-        print("[github] GITHUB_TOKEN not set — skipping push")
+        print("[github] GITHUB_TOKEN not set â skipping push")
         return
     b64 = base64.b64encode(content.encode("utf-8")).decode()
     async with httpx.AsyncClient() as client:
@@ -86,7 +95,7 @@ async def _push_context_to_github(content: str):
         )
         sha = r.json().get("sha", "")
         body = {
-            "message": f"context: Brian feedback via Telegram — {datetime.now().strftime('%Y-%m-%d')}",
+            "message": f"context: Brian feedback via Telegram â {datetime.now().strftime('%Y-%m-%d')}",
             "content": b64,
         }
         if sha:
@@ -121,7 +130,7 @@ async def _append_feedback(text: str):
     # Push to GitHub so it survives service restarts
     await _push_context_to_github(raw)
 
-# ── Endpoints ────────────────────────────────────────────────────────────────
+# ââ Endpoints ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 @app.get("/health")
 async def health():
@@ -152,7 +161,7 @@ async def telegram_webhook(request: Request):
     async with httpx.AsyncClient() as client:
         await client.post(
             f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={"chat_id": chat_id, "text": "✓ Got it. Adding to context."},
+            json={"chat_id": chat_id, "text": "â Got it. Adding to context."},
             timeout=10,
         )
 
