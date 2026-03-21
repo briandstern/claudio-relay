@@ -334,6 +334,8 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
     stylist_note = outfit.get('stylist_note', outfit.get('note', ''))
     html         = _build_card_html(pieces, item_imgs, look_img, stylist_note)
 
+    import os as _os
+    _os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "0")
     from playwright.sync_api import sync_playwright
     with sync_playwright() as pw:
         browser = pw.chromium.launch(
