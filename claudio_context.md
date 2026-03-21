@@ -81,6 +81,24 @@ Clear Street is a fintech, not Goldman Sachs. Some people wear work-appropriate 
 
 ---
 
+## Weekend Context — Fashionable Dad, Not Workwear
+
+On weekends I'm a dad in Port Washington — kids, errands, casual outings, maybe a restaurant. The vibe is **fashionable dad**: looks that are relaxed and clearly off-duty, but still intentional and sharp. This is NOT workwear recycled for Saturday.
+
+**Weekend NEVER list (additions):**
+- No blazers, pleated trousers, or Chelsea boots — that's an office outfit
+- No "boring suburban dad": no cargo shorts, no Patagonia vest, no beat-up gym shoes, no oversized dad jeans, no New Balance 990s in grey
+- No looks that read "I'm trying to dress like a 22-year-old" — keep it age-appropriate and cool, not hypebeast
+
+**Weekend SHOULD look like:**
+- Dark slim-straight or straight-leg jeans (no distressing) as the base
+- Clean, interesting sneakers: cream/white leather, subtle color, retro silhouettes (Nikes, New Balance in non-dad colorways, Veja, etc.)
+- Relaxed outerwear with shape: chore jacket, overshirt, field jacket, puffer vest over a knit
+- Casualer tops: henleys, heavy crew-neck sweatshirts (no logos), thick knit polos, crewneck sweaters
+- The goal: someone who looks great dropping their kid at soccer without looking like they're going to a meeting or a frat reunion
+
+---
+
 ## Outfit Formulas That Work
 
 ### Office Tier 1 (Styled)
@@ -131,3 +149,4 @@ _Append notes here as recommendations are trained and improved._
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-03-20 | Initial context file created from claudio-style-profile.md | Baseline |
+| 2026-03-20 | Added Weekend Context section: fashionable dad, not workwear or boring suburban dad | Brian's feedback |
