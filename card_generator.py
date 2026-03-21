@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Claudio Card Generator v4
-Phone-optimised: 1080ÃÂ1920 (9:16), minimum 28px body text, stacked layout.
-Layout: header Ã¢ÂÂ full-width editorial portrait Ã¢ÂÂ 2-col flat-lay grid Ã¢ÂÂ palette Ã¢ÂÂ note Ã¢ÂÂ footer.
+Phone-optimised: 1080ÃÂÃÂ1920 (9:16), minimum 28px body text, stacked layout.
+Layout: header ÃÂ¢ÃÂÃÂ full-width editorial portrait ÃÂ¢ÃÂÃÂ 2-col flat-lay grid ÃÂ¢ÃÂÃÂ palette ÃÂ¢ÃÂÃÂ note ÃÂ¢ÃÂÃÂ footer.
 Context-aware: loads claudio_context.md to personalise DALL-E prompts.
 """
 
@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 import httpx
 from openai import OpenAI
 
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Context File Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Context File ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 _CTX_CACHE: dict = {}
 _CTX_LOAD_TIME: float = 0.0
 
@@ -49,17 +49,17 @@ def _load_context() -> dict:
     loc_match = re.search(r'Check weather for ([^(]+)\(home', raw)
     _CTX_CACHE['home_location'] = loc_match.group(1).strip() if loc_match else "Port Washington, NY"
 
-    print(f"[ctx] Loaded context Ã¢ÂÂ subject: {_CTX_CACHE['subject']}")
+    print(f"[ctx] Loaded context ÃÂ¢ÃÂÃÂ subject: {_CTX_CACHE['subject']}")
     _CTX_LOAD_TIME = _time.time()
     return _CTX_CACHE
 
 
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Canvas Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Canvas ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 W, H   = 1080, 1920
 PAD    = 60
 INNER  = W - 2 * PAD        # 960px usable width
 
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Palette Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Palette ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 BG      = (255, 255, 255)
 DARK    = (18,  18,  18 )
 MID     = (100, 94,  86 )
@@ -69,7 +69,7 @@ ACCENT  = (139, 115, 85 )
 WHITE   = (255, 255, 255)
 CELL_BG = (248, 246, 242)
 
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ WMO Weather Codes Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ WMO Weather Codes ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 WMO = {
     0:"Clear Sky", 1:"Mainly Clear", 2:"Partly Cloudy", 3:"Overcast",
     45:"Fog", 48:"Fog", 51:"Drizzle", 53:"Drizzle", 55:"Drizzle",
@@ -79,15 +79,15 @@ WMO = {
     95:"Thunderstorm", 96:"Thunderstorm", 99:"Thunderstorm",
 }
 WMO_EMOJI = {
-    0:"Ã¢ÂÂ",  1:"Ã°ÂÂÂ¤", 2:"Ã¢ÂÂ", 3:"Ã¢ÂÂ",
-    45:"Ã°ÂÂÂ«", 48:"Ã°ÂÂÂ«", 51:"Ã°ÂÂÂ¦", 53:"Ã°ÂÂÂ¦", 55:"Ã°ÂÂÂ§",
-    61:"Ã°ÂÂÂ¦", 63:"Ã°ÂÂÂ§", 65:"Ã°ÂÂÂ§",
-    71:"Ã°ÂÂÂ¨", 73:"Ã¢ÂÂ", 75:"Ã¢ÂÂ",  77:"Ã¢ÂÂ",
-    80:"Ã°ÂÂÂ¦", 81:"Ã°ÂÂÂ§", 82:"Ã¢ÂÂ",
-    95:"Ã¢ÂÂ", 96:"Ã¢ÂÂ", 99:"Ã¢ÂÂ",
+    0:"ÃÂ¢ÃÂÃÂ",  1:"ÃÂ°ÃÂÃÂÃÂ¤", 2:"ÃÂ¢ÃÂÃÂ", 3:"ÃÂ¢ÃÂÃÂ",
+    45:"ÃÂ°ÃÂÃÂÃÂ«", 48:"ÃÂ°ÃÂÃÂÃÂ«", 51:"ÃÂ°ÃÂÃÂÃÂ¦", 53:"ÃÂ°ÃÂÃÂÃÂ¦", 55:"ÃÂ°ÃÂÃÂÃÂ§",
+    61:"ÃÂ°ÃÂÃÂÃÂ¦", 63:"ÃÂ°ÃÂÃÂÃÂ§", 65:"ÃÂ°ÃÂÃÂÃÂ§",
+    71:"ÃÂ°ÃÂÃÂÃÂ¨", 73:"ÃÂ¢ÃÂÃÂ", 75:"ÃÂ¢ÃÂÃÂ",  77:"ÃÂ¢ÃÂÃÂ",
+    80:"ÃÂ°ÃÂÃÂÃÂ¦", 81:"ÃÂ°ÃÂÃÂÃÂ§", 82:"ÃÂ¢ÃÂÃÂ",
+    95:"ÃÂ¢ÃÂÃÂ", 96:"ÃÂ¢ÃÂÃÂ", 99:"ÃÂ¢ÃÂÃÂ",
 }
 
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Fonts Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Fonts ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 FONTS_DIR = Path(__file__).parent / "fonts"
 
 def _lf(paths, size):
@@ -130,7 +130,7 @@ def _load_fonts():
         'palette_lbl': _lf(sr, 60),
     }
 
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Color Utilities Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Color Utilities ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 
 def _hex_rgb(h):
     h = h.lstrip('#')
@@ -160,7 +160,7 @@ def _color_name(hex_c):
 def _luminance(rgb):
     return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 255000
 
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Text Utility Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Text Utility ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 
 def _wrap(text, font, max_w):
     words = text.split()
@@ -175,7 +175,7 @@ def _wrap(text, font, max_w):
     if cur: lines.append(' '.join(cur))
     return lines
 
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Image Generation Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Image Generation ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 
 def _client():
     key = os.environ.get('OPENAI_API_KEY')
@@ -189,7 +189,7 @@ def _fetch(url):
     return Image.open(io.BytesIO(r.content)).convert('RGB')
 
 def _gen_item_image(piece, client):
-    """E-commerce product photography Ã¢ÂÂ clean white background, no AI gloss."""
+    """E-commerce product photography ÃÂ¢ÃÂÃÂ clean white background, no AI gloss."""
     col  = _color_name(piece.get('color', '#888888'))
     mat  = piece.get('material', '')
     name = piece.get('name', 'clothing item')
@@ -210,53 +210,25 @@ def _gen_item_image(piece, client):
     return _fetch(resp.data[0].url)
 
 def _gen_look_image(outfit, context, weather, client):
-    """Street-style editorial portrait Ã¢ÂÂ The Sartorialist aesthetic."""
-    ctx     = _load_context()
-    subject = ctx.get('subject', 'a well-dressed man in his mid-30s, athletic build')
-
+    """Realistic portrait of Brian wearing the outfit — clean white background."""
     pieces = outfit.get('pieces', [])
     descs  = []
     for p in pieces:
-        col  = _color_name(p.get('color', '#888888'))
+        col  = p.get('color_name', '') or _color_name(p.get('color', '#888888'))
         name = p.get('name', '')
-        mat  = p.get('material', '')
-        descs.append(f"{col}{' ' + mat if mat else ''} {name}".strip())
-    outfit_str = ", ".join(descs)
-
-    loc_scene = {
-        'office':        ('walking on a quiet city block near glass office buildings in lower Manhattan',
-                          'overcast urban daylight, naturally diffused shadows'),
-        'weekend':       ('on a tree-lined street in Brooklyn, slight motion in the leaves',
-                          'soft golden afternoon sun, long natural shadows'),
-        'date_night':    ('outside a dimly lit restaurant entrance in the West Village, '
-                          'warm window light spilling onto the pavement',
-                          'dusk, ambient street light mixed with warm interior glow'),
-        'family_outing': ('in Central Park, dappled light filtering through trees',
-                          'bright spring midday, natural fill light'),
-    }.get(context, ('on a quiet city street in New York', 'natural overcast daylight'))
-
-    loc, light_cue = loc_scene
-    temp   = int(round(float(weather.get('current_temp', 65))))
-    season = "autumn" if 45 <= temp <= 65 else ("winter" if temp < 45 else ("summer" if temp > 80 else "spring"))
+        descs.append(f"{col} {name}".strip())
+    outfit_str = ", ".join(descs) if descs else "casual outfit"
 
     prompt = (
-        f"Candid street-style photograph. Shot on a Leica SL2-S, 75mm f/1.4 Summilux lens. "
-        f"{subject.capitalize()}, {loc}. "
+        f"A realistic photo of a 37-year-old man with short brown hair, green eyes, and an athletic build. "
         f"He is wearing: {outfit_str}. "
-        f"{light_cue}, {season}. "
-        f"Full-length frame showing the complete outfit. Shallow depth of field, "
-        f"subject separated from background. "
-        f"IMPORTANT: Subject is NOT looking at the camera Ã¢ÂÂ he is looking slightly to the side, "
-        f"in mid-stride, or his gaze is cast downward. Face may be partially turned. "
-        f"The Sartorialist / GQ street-style aesthetic: candid, natural, never posed or stiff. "
-        f"Authentic photographic qualities: natural skin texture, realistic fabric drape and "
-        f"slight creasing, true-to-life material sheen Ã¢ÂÂ matte wool looks matte, "
-        f"suede looks soft, leather shows natural grain variation. "
-        f"Restrained, editorial color grading. Slight natural film grain. "
-        f"No artificial skin smoothing, no plastic sheen, no studio backgrounds pretending "
-        f"to be outdoors, no symmetrical poses, no impossible hand positions. "
-        f"The image should be indistinguishable from a real street-style photograph. "
-        f"No text overlays, no visible brand logos."
+        f"Simple clean off-white background. Natural relaxed standing posture, slight smile, looking at camera. "
+        f"Catalog photography style — well-lit, natural, not dramatic. "
+        f"Realistic proportions: average height, athletic but not exaggerated build. "
+        f"Natural skin texture, realistic fabric drape. "
+        f"The look of a confident, well-dressed dad in his late 30s. "
+        f"No dramatic lighting, no outdoor backgrounds, no fashion editorial styling. "
+        f"Photorealistic, high quality, clean and simple."
     )
     resp = client.images.generate(
         model="dall-e-3", prompt=prompt,
@@ -265,20 +237,33 @@ def _gen_look_image(outfit, context, weather, client):
     return _fetch(resp.data[0].url)
 
 def _generate_all_images(outfit, context, weather):
-    """Generate all DALL-E images in parallel. Caps flat-lay at 4 main pieces."""
+    """Generate images. Uses pre-provided image_url per piece when available; DALL-E only for portrait."""
     c = _client()
     ACC_CATS = {'ACCESSORIES', 'BELT', 'SCARF', 'WATCH'}
     all_pieces  = outfit.get('pieces', [])
     main_pieces = [p for p in all_pieces if p.get('category', '').upper() not in ACC_CATS][:4]
     results     = {'_main_pieces': main_pieces}
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
-        item_futs = {ex.submit(_gen_item_image, p, c): i for i, p in enumerate(main_pieces)}
+    def _load_piece_image(piece, idx):
+        """Download from image_url if provided, else generate via DALL-E."""
+        url = piece.get('image_url')
+        if url:
+            try:
+                resp = httpx.get(url, timeout=30, follow_redirects=True)
+                resp.raise_for_status()
+                return Image.open(io.BytesIO(resp.content)).convert('RGB')
+            except Exception as e:
+                print(f"[warn] image_url fetch failed for piece {idx}: {e}")
+        # Fallback: DALL-E generation
+        return _gen_item_image(piece, c)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as ex:
+        item_futs = {ex.submit(_load_piece_image, p, i): i for i, p in enumerate(main_pieces)}
         look_fut  = ex.submit(_gen_look_image, outfit, context, weather, c)
 
         for fut, idx in item_futs.items():
             try:
-                results[f'item_{idx}'] = fut.result(timeout=120)
+                results[f'item_{idx}'] = fut.result(timeout=60)
             except Exception as e:
                 print(f"[warn] item {idx} image failed: {e}")
                 rgb = _hex_rgb(main_pieces[idx].get('color', '#999999'))
@@ -288,12 +273,9 @@ def _generate_all_images(outfit, context, weather):
             results['look'] = look_fut.result(timeout=120)
         except Exception as e:
             print(f"[warn] look image failed: {e}")
-            results['look'] = None
+            results['look'] = Image.new('RGB', (512, 900), (240, 238, 234))
 
     return results
-
-
-# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Main Card Generator Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 def generate_card(weather: dict, outfit: dict, output_path: str, context: str = "office") -> str:
     """
@@ -318,16 +300,25 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
 
     # -- Weather / outfit data -------------------------------------------------
     wmo_code   = weather.get('weathercode', 0)
-    temp_c     = weather.get('temperature_2m', 20)
-    temp_f     = round(temp_c * 9 / 5 + 32)
-    wind_kph   = weather.get('windspeed_10m', 0)
-    wind_mph   = round(wind_kph * 0.621)
-    precip_pct = round(weather.get('precipitation_probability', 0))
+    # Accept Open-Meteo format (temperature_2m in C) or scheduled task format (current_temp/temp_f in F)
+    if 'temp_f' in weather:
+        temp_f = round(float(weather['temp_f']))
+    elif 'current_temp' in weather:
+        temp_f = round(float(weather['current_temp']))
+    else:
+        temp_c = weather.get('temperature_2m', 20)
+        temp_f = round(temp_c * 9 / 5 + 32)
+    if 'wind' in weather:
+        wind_mph = round(float(weather['wind']))
+    else:
+        wind_kph = weather.get('windspeed_10m', 0)
+        wind_mph = round(wind_kph * 0.621)
+    precip_pct = round(weather.get('precipitation_probability', weather.get('rain_prob', 0)))
     emoji      = WMO_EMOJI.get(wmo_code, '\u2600')
     condition  = WMO.get(wmo_code, 'Clear')
     rain_str   = f'  \u00b7  {precip_pct}% rain' if precip_pct > 10 else ''
     outfit_name  = outfit.get('name', "Today's Look")
-    stylist_note = outfit.get('note', '')
+    stylist_note = outfit.get('stylist_note', outfit.get('note', ''))
 
     # -- TOP WEATHER STRIP -----------------------------------------------------
     STRIP_Y = 46
