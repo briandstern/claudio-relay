@@ -230,9 +230,8 @@ def _gen_look_image(outfit, context, weather, client):
 def _load_all_images(outfit, context, weather):
     """Fetch item images from URLs (DALL-E fallback) + generate portrait."""
     c = _client()
-    ACC_CATS = {'ACCESSORIES', 'BELT', 'SCARF', 'WATCH'}
-    pieces = [p for p in outfit.get('pieces', [])
-              if p.get('category', '').upper() not in ACC_CATS][:4]
+    # Include ALL pieces — shoes, accessories, everything
+    pieces = outfit.get('pieces', [])
 
     def fetch_piece(piece):
         url = piece.get('image_url')
@@ -246,7 +245,7 @@ def _load_all_images(outfit, context, weather):
         return _gen_item_image(piece, c)
 
     results = {}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as ex:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
         item_futs = {ex.submit(fetch_piece, p): i for i, p in enumerate(pieces)}
         look_fut  = ex.submit(_gen_look_image, outfit, context, weather, c)
 
@@ -279,7 +278,11 @@ def _img_to_b64(img: Image.Image) -> str:
 def _build_card_html(pieces, item_imgs, look_img, stylist_note: str) -> str:
     """Render outfit card as HTML string with base64-embedded images."""
 
-    # Item cells (2x2 grid)
+    # Adaptive image height based on row count
+    n_rows = (len(pieces) + 1) // 2
+    img_h = 188 if n_rows <= 2 else (130 if n_rows == 3 else 100)
+
+    # Item cells (dynamic grid)
     cells_html = ''
     for piece, img in zip(pieces, item_imgs):
         b64        = _img_to_b64(img)
@@ -323,13 +326,13 @@ body {{
 .grid {{ display:grid; grid-template-columns:1fr 1fr; gap:14px; width:368px; flex-shrink:0; }}
 .cell {{ background:#EDEBE5; border-radius:12px; overflow:hidden; }}
 .cell-img {{ background:#fff; padding:10px; }}
-.cell-img img {{ width:100%; height:188px; object-fit:contain; display:block; }}
+.cell-img img {{ width:100%; height:{img_h}px; object-fit:contain; display:block; }}
 .cell-text {{ padding:11px 13px 15px; }}
 .cell-name {{ font-size:15px; font-weight:700; color:#111111; line-height:1.3; }}
 .cell-brand {{ font-size:12px; color:#7A7068; margin-top:5px; font-weight:400; }}
 .portrait-col {{ flex:1; min-width:0; }}
 .portrait {{
-  width:100%; height:100%; max-height:640px;
+  width:100%; height:100%;
   object-fit:cover; object-position:top center;
   border-radius:12px; display:block;
 }}
