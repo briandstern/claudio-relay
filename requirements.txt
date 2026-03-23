@@ -1,2 +1,7 @@
-fastapiuvicorn[standard]httpxPillowopenaiplaywright
+fastapi
+uvicorn[standard]
+httpx
+Pillow
+openai
+playwright
 google-genai
