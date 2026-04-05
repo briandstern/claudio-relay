@@ -2,31 +2,618 @@
   "frigid": {
     "office": [
       {
-        "name": "The Frigid Office",
-        "description": "Heavy layering for extreme cold",
-        "stylist_note": "Replace this with your real outfit data from outfit_db.json in the Co-Work session.",
-        "style_tags": ["Smart Casual"],
+        "name": "The Overcoat Edit",
+        "description": "Tonal winter warmth \u2014 refined and ready for the LIRR",
+        "stylist_note": "Knot the scarf in a relaxed Paris knot \u2014 cross and tuck one end underneath. Let the turtleneck peek just above the coat collar. Keep the topcoat buttoned all the way up except the last button. The entire look should read as one clean silhouette.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Winter Layering"],
         "pieces": [
-          { "category": "OUTERWEAR", "name": "Placeholder Coat", "brand": "", "color": "#1a1a1a", "color_name": "black" }
+          { "category": "OUTERWEAR", "name": "Camel Topcoat", "brand": "Club Monaco", "color": "#C4A882", "color_name": "camel", "image_url": null },
+          { "category": "LAYER", "name": "Charcoal Turtleneck", "brand": "Vince", "color": "#4A4A4A", "color_name": "charcoal", "image_url": null },
+          { "category": "PANTS", "name": "Charcoal Wool Trousers", "brand": "Todd Snyder", "color": "#3A3A3A", "color_name": "charcoal", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Chelsea Boots", "brand": "Thursday Boot Co.", "color": "#8B5E3C", "color_name": "cognac", "image_url": null },
+          { "category": "ACCESSORIES", "name": "Grey Herringbone Scarf", "brand": "Alex Mill", "color": "#8A8A8A", "color_name": "grey", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Dark Navy Stack",
+        "description": "Navy overcoat and black turtleneck \u2014 a winter uniform with quiet authority",
+        "stylist_note": "The all-dark palette needs clean lines \u2014 no bunching at the waist. Tuck the turtleneck into the trousers. Keep the overcoat fully buttoned on the commute. Black belt, black shoes: commit to the monochrome. The navy coat over black is intentional contrast, not a mistake.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Winter Tonal"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Navy Wool Overcoat", "brand": "Club Monaco", "color": "#1E2D45", "color_name": "navy", "image_url": null },
+          { "category": "LAYER", "name": "Black Turtleneck", "brand": "Vince", "color": "#1A1A1A", "color_name": "black", "image_url": null },
+          { "category": "PANTS", "name": "Charcoal Flannel Trousers", "brand": "Todd Snyder", "color": "#4A4A4A", "color_name": "charcoal", "image_url": null },
+          { "category": "SHOES", "name": "Black Leather Derby Shoes", "brand": "Allen Edmonds", "color": "#1A1A1A", "color_name": "black", "image_url": null },
+          { "category": "ACCESSORIES", "name": "Black Leather Gloves", "brand": "Nordstrom", "color": "#1A1A1A", "color_name": "black", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Earth Tone Winter",
+        "description": "Warm brown topcoat over oatmeal \u2014 every layer earthy and considered",
+        "stylist_note": "Brown topcoat over an oatmeal turtleneck is a rarely-seen move that pays off big. Keep the trousers in the tan-camel family to stay in the palette. Tan suede loafers finish it. This works because every element is one color story.",
+        "style_tags": ["Smart Casual", "Earth Tones", "Winter Elevated"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Dark Brown Wool Topcoat", "brand": "J.Crew", "color": "#5C3A1E", "color_name": "dark brown", "image_url": null },
+          { "category": "LAYER", "name": "Oatmeal Turtleneck", "brand": "Alex Mill", "color": "#D4C9B0", "color_name": "oatmeal", "image_url": null },
+          { "category": "PANTS", "name": "Camel Slim Trousers", "brand": "Banana Republic", "color": "#C4A882", "color_name": "camel", "image_url": null },
+          { "category": "SHOES", "name": "Tan Suede Loafers", "brand": "G.H. Bass", "color": "#C4A882", "color_name": "tan", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Grey Column",
+        "description": "Tonal grey from coat to shoe \u2014 the easiest hard look to pull off",
+        "stylist_note": "Grey topcoat over light grey merino only works when the tones are sufficiently different \u2014 mid-grey coat, light grey sweater, charcoal trouser. The gradient matters. Black chelsea boots anchor the whole thing. Don't add color: the restraint is the point.",
+        "style_tags": ["Fintech Business Casual", "Smart Casual", "Winter Monochrome"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Mid Grey Topcoat", "brand": "Club Monaco", "color": "#8A8A8A", "color_name": "mid grey", "image_url": null },
+          { "category": "LAYER", "name": "Light Grey Merino Crewneck", "brand": "Vince", "color": "#C4C4C4", "color_name": "light grey", "image_url": null },
+          { "category": "PANTS", "name": "Charcoal Slim Trousers", "brand": "Todd Snyder", "color": "#3A3A3A", "color_name": "charcoal", "image_url": null },
+          { "category": "SHOES", "name": "Black Chelsea Boots", "brand": "Thursday Boot Co.", "color": "#1A1A1A", "color_name": "black", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Cable Knit Office",
+        "description": "Cream cable knit under a structured wool coat \u2014 texture with authority",
+        "stylist_note": "The cable knit turtleneck is a statement \u2014 wear it with a clean, structure topcoat so it reads deliberate. Full tuck into slim navy trousers. Cognac Oxford shoes ground the cream-on-navy. This is a rare look that signals confidence and individuality.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Winter Texture"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Charcoal Wool Topcoat", "brand": "Club Monaco", "color": "#4A4A4A", "color_name": "charcoal", "image_url": null },
+          { "category": "LAYER", "name": "Cream Cable Knit Turtleneck", "brand": "Todd Snyder", "color": "#E8E0D0", "color_name": "cream", "image_url": null },
+          { "category": "PANTS", "name": "Dark Navy Slim Trousers", "brand": "Todd Snyder", "color": "#1E2D45", "color_name": "dark navy", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Oxford Shoes", "brand": "Allen Edmonds", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
         ]
       }
     ],
-    "weekend": []
+    "weekend": [
+      {
+        "name": "The Deep Freeze",
+        "description": "Rugged warmth with considered texture for a cold Port Saturday",
+        "stylist_note": "The sherpa jacket is the statement here \u2014 let it be. Keep everything underneath simple and dark. Tuck the henley into the jeans for a hint of intention even in casual mode. Lace the duck boots loosely.",
+        "style_tags": ["Weekend Elevated", "Smart Casual", "Rugged Prep"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Tan Sherpa Jacket", "brand": "Faherty", "color": "#C8A97A", "color_name": "tan sherpa", "image_url": null },
+          { "category": "LAYER", "name": "Oatmeal Heavyweight Henley", "brand": "Alex Mill", "color": "#D4C9B0", "color_name": "oatmeal", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "Mahogany Duck Boots", "brand": "L.L. Bean", "color": "#6B3A2A", "color_name": "mahogany", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Waxed Wool Combo",
+        "description": "Waxed canvas over a heavy crewneck \u2014 the weekend uniform for serious cold",
+        "stylist_note": "The chunky oatmeal crewneck under a waxed jacket is a texture collision that works because the silhouettes are different \u2014 boxy canvas over a fitted knit. Dark jeans, white sneakers. The sneakers keep it from reading too rugged.",
+        "style_tags": ["Weekend Elevated", "Rugged Prep", "Smart Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Waxed Canvas Jacket", "brand": "Barbour", "color": "#5C5C36", "color_name": "olive", "image_url": null },
+          { "category": "LAYER", "name": "Oatmeal Chunky Crewneck", "brand": "Alex Mill", "color": "#D4C9B0", "color_name": "oatmeal", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "White Cup-Sole Sneakers", "brand": "Veja", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Shearling Saturday",
+        "description": "Shearling collar jacket over a heavyweight henley \u2014 warmth that looks intentional",
+        "stylist_note": "The shearling jacket is the whole look \u2014 build everything else around it simply. Dark jeans, simple tan work boots. Don't compete with the jacket texture: henley stays plain and untucked. Lace the boots loosely for a relaxed silhouette.",
+        "style_tags": ["Weekend Elevated", "Rugged Prep", "Winter Texture"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Camel Shearling Collar Trucker Jacket", "brand": "Faherty", "color": "#C8A97A", "color_name": "camel", "image_url": null },
+          { "category": "LAYER", "name": "Charcoal Heavyweight Henley", "brand": "Alex Mill", "color": "#4A4A4A", "color_name": "charcoal", "image_url": null },
+          { "category": "PANTS", "name": "Dark Grey Slim Jeans", "brand": "AG Jeans", "color": "#3A3A3A", "color_name": "dark grey", "image_url": null },
+          { "category": "SHOES", "name": "Tan Work Boots", "brand": "Thursday Boot Co.", "color": "#C4A882", "color_name": "tan", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Navy Wool Dad",
+        "description": "Navy wool overshirt over a cream henley \u2014 smart without trying",
+        "stylist_note": "The navy wool overshirt wears like a shirt jacket \u2014 leave it unbuttoned over the cream henley so the contrast shows. Roll the jeans once. Cream sneakers echo the henley and keep the bottom half clean. This reads effortlessly composed.",
+        "style_tags": ["Weekend Elevated", "Smart Casual", "Relaxed Prep"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Navy Wool Overshirt", "brand": "Todd Snyder", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "LAYER", "name": "Cream Heavyweight Henley", "brand": "Alex Mill", "color": "#E8E0D0", "color_name": "cream", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "Cream Leather Sneakers", "brand": "Veja", "color": "#EFEFEF", "color_name": "cream", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Field Jacket Freeze",
+        "description": "Military field jacket layered over a chunky turtleneck \u2014 utility with intention",
+        "stylist_note": "Field jacket over a turtleneck is a classic cold-weather pairing. Leave the jacket open so the turtleneck shows fully. Dark jeans, brown boots. The olive-oatmeal-indigo palette is understated and deliberate. Roll the jeans once.",
+        "style_tags": ["Weekend Elevated", "Rugged Prep", "Utility Cool"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Field Jacket", "brand": "Engineered Garments", "color": "#5C5C36", "color_name": "olive", "image_url": null },
+          { "category": "LAYER", "name": "Oatmeal Ribbed Turtleneck", "brand": "Vince", "color": "#D4C9B0", "color_name": "oatmeal", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Work Boots", "brand": "Thursday Boot Co.", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      }
+    ]
   },
   "cold": {
-    "office": [],
-    "weekend": []
+    "office": [
+      {
+        "name": "The Warm Monday",
+        "description": "Intentional layering for a considered office entry",
+        "stylist_note": "Pop the collar of the OCBD above the quarter-zip \u2014 just the collar tips visible above the ribbing. Tuck both layers into the trousers for a clean silhouette. Roll the trouser cuffs one clean fold. The chore jacket wears open at the office, closed on the commute.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Earth Tones"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Chore Jacket", "brand": "Todd Snyder", "color": "#6B6B3C", "color_name": "olive", "image_url": null },
+          { "category": "LAYER", "name": "Navy Quarter-Zip", "brand": "Club Monaco", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "SHIRT", "name": "White OCBD", "brand": "Alex Mill", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Navy Slim Wool Trousers", "brand": "Todd Snyder", "color": "#2A3550", "color_name": "navy", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Chelsea Boots", "brand": "Thursday Boot Co.", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      },
+      {
+        "name": "East Coast Prep",
+        "description": "The timeless preppy formula \u2014 elevated for fintech",
+        "stylist_note": "Layer the forest green crewneck over the oxford with the collar and 3\u20134 inches of cuffs showing. Tuck both layers. Leave the topcoat slightly open and let it drape naturally. Carry it over your arm on the train for commuter-cool credibility.",
+        "style_tags": ["Classic Preppy", "Fintech Business Casual", "Smart Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Camel Wool Topcoat", "brand": "J.Crew", "color": "#C4A882", "color_name": "camel", "image_url": null },
+          { "category": "LAYER", "name": "Forest Green Crewneck", "brand": "Vince", "color": "#3D5C3A", "color_name": "forest green", "image_url": null },
+          { "category": "SHIRT", "name": "White Oxford", "brand": "J.Crew", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Chinos", "brand": "Banana Republic", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Chocolate Penny Loafers", "brand": "Allen Edmonds", "color": "#5C3A1E", "color_name": "chocolate", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Navy Chore Office",
+        "description": "Navy chore jacket over a white mock-neck \u2014 modern workwear with restraint",
+        "stylist_note": "The navy chore jacket over a white mock-neck turtleneck is clean and architectural. Keep the jacket buttoned at the office. Slate blue trousers maintain the cool palette. Dark brown derbies ground it without going formal.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Modern Workwear"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Navy Chore Jacket", "brand": "Todd Snyder", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "LAYER", "name": "White Mock-Neck Sweater", "brand": "Club Monaco", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Slate Blue Slim Trousers", "brand": "Banana Republic", "color": "#7A8FA8", "color_name": "slate blue", "image_url": null },
+          { "category": "SHOES", "name": "Dark Brown Derby Shoes", "brand": "Allen Edmonds", "color": "#4A2E1A", "color_name": "dark brown", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Merino Stack",
+        "description": "Dark merino crewneck under a topcoat \u2014 maximum warmth, zero fuss",
+        "stylist_note": "Dark navy merino crewneck under a camel topcoat is a classic pairing. Keep the merino fully tucked. The camel and navy combination works because they're in opposite corners of the color wheel. Cognac boots tie the warm tones together.",
+        "style_tags": ["Classic Preppy", "Smart Casual", "Winter Elevated"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Camel Wool Topcoat", "brand": "Club Monaco", "color": "#C4A882", "color_name": "camel", "image_url": null },
+          { "category": "LAYER", "name": "Dark Navy Merino Crewneck", "brand": "Vince", "color": "#1E2D45", "color_name": "dark navy", "image_url": null },
+          { "category": "PANTS", "name": "Grey Slim Wool Trousers", "brand": "Todd Snyder", "color": "#6A6A6A", "color_name": "grey", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Chelsea Boots", "brand": "Thursday Boot Co.", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Burgundy Layer",
+        "description": "Burgundy merino v-neck and olive field jacket \u2014 unexpected and considered",
+        "stylist_note": "Burgundy and olive is a rich, unexpected combination that reads intellectual rather than preppy. Layer the v-neck over the OCBD with collar fully visible. Field jacket open at the office. Charcoal trousers keep the color story grounded.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Autumn Tones"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Field Jacket", "brand": "Engineered Garments", "color": "#5C5C36", "color_name": "olive", "image_url": null },
+          { "category": "LAYER", "name": "Burgundy Merino V-Neck", "brand": "Club Monaco", "color": "#6B2A2A", "color_name": "burgundy", "image_url": null },
+          { "category": "SHIRT", "name": "White OCBD", "brand": "Alex Mill", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Charcoal Slim Trousers", "brand": "Todd Snyder", "color": "#4A4A4A", "color_name": "charcoal", "image_url": null },
+          { "category": "SHOES", "name": "Dark Brown Leather Derby Shoes", "brand": "Allen Edmonds", "color": "#4A2E1A", "color_name": "dark brown", "image_url": null }
+        ]
+      }
+    ],
+    "weekend": [
+      {
+        "name": "The Saturday Routine",
+        "description": "Waxed canvas and denim \u2014 weekend-ready without overthinking it",
+        "stylist_note": "The waxed jacket should look lived-in \u2014 that's the point. Untucked henley, loose but intentional. Roll the jeans twice for a clean break above the ankle. White sneakers keep the whole look from reading too rugged.",
+        "style_tags": ["Weekend Elevated", "Smart Casual", "Casual Prep"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Waxed Canvas Jacket", "brand": "Barbour", "color": "#5C5C36", "color_name": "olive", "image_url": null },
+          { "category": "LAYER", "name": "Charcoal Henley", "brand": "Alex Mill", "color": "#4A4A4A", "color_name": "charcoal", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "White Cup-Sole Sneakers", "brand": "Veja", "color": "#EFEFEF", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Weekend Knit",
+        "description": "The shawl cardigan as outerwear \u2014 old-school prep done right",
+        "stylist_note": "Keep the cardigan open with the Breton tee showing fully. Don't button it \u2014 that's the move. The Breton tee stripe adds visual interest without trying. Roll the chino cuffs once. Suede loafers are the understated finisher.",
+        "style_tags": ["Classic Preppy", "Weekend Elevated", "Textured Layers"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Oatmeal Shawl Cardigan", "brand": "Todd Snyder", "color": "#D4C9B0", "color_name": "oatmeal", "image_url": null },
+          { "category": "SHIRT", "name": "Navy Breton Stripe Tee", "brand": "Saint James", "color": "#2A3B5C", "color_name": "navy and white stripe", "image_url": null },
+          { "category": "PANTS", "name": "Dark Khaki Slim Chinos", "brand": "Banana Republic", "color": "#8C7A5A", "color_name": "dark khaki", "image_url": null },
+          { "category": "SHOES", "name": "Tan Suede Tassel Loafers", "brand": "G.H. Bass", "color": "#C4A882", "color_name": "tan suede", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Field Jacket Dad",
+        "description": "Olive field jacket over a navy henley \u2014 utility cool for a cold Saturday",
+        "stylist_note": "Field jacket open, henley showing underneath. Roll the jeans once at the ankle. Tan boots ground the olive-navy palette with warmth. This outfit takes five seconds to think about and looks like you thought about it for hours.",
+        "style_tags": ["Weekend Elevated", "Utility Cool", "Smart Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Field Jacket", "brand": "Engineered Garments", "color": "#5C5C36", "color_name": "olive", "image_url": null },
+          { "category": "LAYER", "name": "Navy Heavyweight Henley", "brand": "Alex Mill", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "PANTS", "name": "Dark Grey Slim Jeans", "brand": "AG Jeans", "color": "#3A3A3A", "color_name": "dark grey", "image_url": null },
+          { "category": "SHOES", "name": "Tan Work Boots", "brand": "Thursday Boot Co.", "color": "#C4A882", "color_name": "tan", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Chore Casual",
+        "description": "Navy chore jacket and white crew tee \u2014 workwear made weekend",
+        "stylist_note": "Navy chore jacket over a white tee is the most versatile weekend layer you own. Leave it unbuttoned, tee untucked. Dark jeans, clean white sneakers. The structure of the chore jacket keeps it from reading sloppy \u2014 even fully casual.",
+        "style_tags": ["Weekend Elevated", "Smart Casual", "Relaxed Prep"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Navy Chore Jacket", "brand": "Todd Snyder", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "SHIRT", "name": "White Crew Tee", "brand": "Alex Mill", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Sneakers", "brand": "Veja", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Tobacco Overshirt",
+        "description": "Tobacco knit overshirt over a cream tee \u2014 rich color, effortless structure",
+        "stylist_note": "Wear the tobacco overshirt unbuttoned as a relaxed layer over a plain cream tee. Dark jeans and cognac boots keep the warm color story consistent. Roll the jeans once. The tobacco-cream-cognac trio is understated but unmistakably intentional.",
+        "style_tags": ["Weekend Elevated", "Earth Tones", "Smart Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Tobacco Knit Overshirt", "brand": "Todd Snyder", "color": "#8B6A4A", "color_name": "tobacco", "image_url": null },
+          { "category": "SHIRT", "name": "Cream Crew Tee", "brand": "Alex Mill", "color": "#E8E0D0", "color_name": "cream", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Work Boots", "brand": "Thursday Boot Co.", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      }
+    ]
   },
   "cool": {
-    "office": [],
-    "weekend": []
+    "office": [
+      {
+        "name": "The Considered Entry",
+        "description": "Knit polo under a chore jacket \u2014 effortless and intentional",
+        "stylist_note": "Leave the chore jacket open \u2014 let the knit polo's texture do the work. Tuck the polo into the trousers for a clean waist. No belt. The tobacco brown-on-tobacco-brown tonal pairing is deliberate and strong. Black Chelsea boots ground the earth tones perfectly.",
+        "style_tags": ["Smart Casual", "Elevated Basics", "Fintech Business Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Tobacco Chore Jacket", "brand": "Todd Snyder", "color": "#8B6A4A", "color_name": "tobacco", "image_url": null },
+          { "category": "SHIRT", "name": "Navy Knit Polo", "brand": "Club Monaco", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "PANTS", "name": "Tobacco Slim Trousers", "brand": "Todd Snyder", "color": "#7A5C3A", "color_name": "tobacco", "image_url": null },
+          { "category": "SHOES", "name": "Black Chelsea Boots", "brand": "Thursday Boot Co.", "color": "#1A1A1A", "color_name": "black", "image_url": null }
+        ]
+      },
+      {
+        "name": "Sweater Vest Season",
+        "description": "The vest that reads boardroom without trying too hard",
+        "stylist_note": "Wear the OCBD with only the top button open under the vest. Tuck the shirt crisply \u2014 this one demands a full tuck. Roll the cuffs of the OCBD once, so they show just below the vest. The slate blue/white/stone palette is classic and refreshingly clean.",
+        "style_tags": ["Classic Preppy", "Fintech Business Casual", "Smart Casual"],
+        "pieces": [
+          { "category": "LAYER", "name": "Slate Blue V-Neck Sweater Vest", "brand": "J.Crew", "color": "#7A8FA8", "color_name": "slate blue", "image_url": null },
+          { "category": "SHIRT", "name": "White OCBD", "brand": "Alex Mill", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Chinos", "brand": "Banana Republic", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Dark Brown Derby Shoes", "brand": "Allen Edmonds", "color": "#4A2E1A", "color_name": "dark brown", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Unstructured Layer",
+        "description": "Olive blouson over a white OCBD \u2014 casual structure for a mild office day",
+        "stylist_note": "The olive blouson jacket reads relaxed but purposeful. Leave it unzipped. OCBD tucked into the navy trousers, one button open at collar. Cognac leather loafers add warmth to the olive-white-navy palette. An effortless cool-weather look for fintech.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Relaxed Elevated"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Blouson Jacket", "brand": "Engineered Garments", "color": "#6B6B3C", "color_name": "olive", "image_url": null },
+          { "category": "SHIRT", "name": "White OCBD", "brand": "Alex Mill", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Navy Slim Trousers", "brand": "Todd Snyder", "color": "#2A3550", "color_name": "navy", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Leather Loafers", "brand": "Allen Edmonds", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Earth Tone Office",
+        "description": "Tan chore jacket over an army green knit polo \u2014 tonal and quietly sharp",
+        "stylist_note": "Tan and army green is a rich earth-tone pairing that reads intentional in a fintech office. Chore jacket open, polo tucked. Stone trousers keep the warm palette going without becoming muddy. Brown suede loafers close the look.",
+        "style_tags": ["Smart Casual", "Earth Tones", "Fintech Business Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Tan Chore Jacket", "brand": "Todd Snyder", "color": "#C4A882", "color_name": "tan", "image_url": null },
+          { "category": "SHIRT", "name": "Army Green Knit Polo", "brand": "Club Monaco", "color": "#6B7A4A", "color_name": "army green", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Trousers", "brand": "Banana Republic", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Brown Suede Loafers", "brand": "G.H. Bass", "color": "#8B6A4A", "color_name": "brown suede", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Navy Workwear Office",
+        "description": "Navy chore jacket over a grey mock-neck \u2014 clean, modern, no fuss",
+        "stylist_note": "Navy chore jacket over a light grey mock-neck is architectural and clean. Keep the jacket buttoned. Dark navy trousers maintain the cool palette. Cognac boots are the one warm note that stops it reading cold. This is the anti-blazer office look.",
+        "style_tags": ["Smart Casual", "Modern Workwear", "Fintech Business Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Navy Chore Jacket", "brand": "Todd Snyder", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "LAYER", "name": "Light Grey Mock-Neck Sweater", "brand": "Vince", "color": "#C4C4C4", "color_name": "light grey", "image_url": null },
+          { "category": "PANTS", "name": "Dark Navy Slim Trousers", "brand": "Todd Snyder", "color": "#1E2D45", "color_name": "dark navy", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Chelsea Boots", "brand": "Thursday Boot Co.", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      }
+    ],
+    "weekend": [
+      {
+        "name": "The Overshirt Layer",
+        "description": "Textured knit overshirt over a clean tee \u2014 controlled casual",
+        "stylist_note": "Wear the overshirt unbuttoned as a layer \u2014 it reads like a shirt jacket without the formality. Dark jeans keep the bottom half grounded. Chelsea boots elevate the denim just enough. This is the off-duty exec look.",
+        "style_tags": ["Weekend Elevated", "Smart Casual", "Relaxed Layers"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Forest Green Knit Overshirt", "brand": "Todd Snyder", "color": "#3D5C3A", "color_name": "forest green", "image_url": null },
+          { "category": "SHIRT", "name": "White Crew Tee", "brand": "Alex Mill", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Chelsea Boots", "brand": "Thursday Boot Co.", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Chore Dad",
+        "description": "Tan chore jacket, navy henley, dark jeans \u2014 the dad uniform done right",
+        "stylist_note": "Tan chore jacket open over a navy henley: the jacket's warm tone lifts the dark palette. Untucked henley. Roll the jeans once. White sneakers keep it fresh. This is the outfit that makes other dads at the park ask where you shop.",
+        "style_tags": ["Weekend Elevated", "Smart Casual", "Fashionable Dad"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Tan Chore Jacket", "brand": "Todd Snyder", "color": "#C4A882", "color_name": "tan", "image_url": null },
+          { "category": "LAYER", "name": "Navy Heavyweight Henley", "brand": "Alex Mill", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "PANTS", "name": "Dark Grey Slim Jeans", "brand": "AG Jeans", "color": "#3A3A3A", "color_name": "dark grey", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Sneakers", "brand": "Veja", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Trucker Weekend",
+        "description": "Olive denim trucker jacket and dark jeans \u2014 casual American done sharp",
+        "stylist_note": "Olive trucker jacket over a plain cream OCBD \u2014 leave the jacket open, shirt un-tucked. Dark jeans rolled once. Tan work boots keep the palette warm. This is the perfectly curated 'I just threw this on' look.",
+        "style_tags": ["Weekend Elevated", "Casual Prep", "Smart Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Trucker Jacket", "brand": "Todd Snyder", "color": "#6B6B3C", "color_name": "olive", "image_url": null },
+          { "category": "SHIRT", "name": "Cream OCBD", "brand": "Alex Mill", "color": "#E8E0D0", "color_name": "cream", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "Tan Work Boots", "brand": "Thursday Boot Co.", "color": "#C4A882", "color_name": "tan", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Navy Sweat Layer",
+        "description": "Navy crewneck sweatshirt under a tobacco overshirt \u2014 the relaxed-smart paradox",
+        "stylist_note": "Tobacco overshirt unbuttoned over a heavy navy crewneck sweatshirt. No logos on the sweatshirt \u2014 this only works with a clean piece. Dark jeans, white leather sneakers. Roll the jeans once. The contrast of warm tobacco against cool navy is what makes this look work.",
+        "style_tags": ["Weekend Elevated", "Smart Casual", "Relaxed Layers"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Tobacco Overshirt", "brand": "Todd Snyder", "color": "#8B6A4A", "color_name": "tobacco", "image_url": null },
+          { "category": "LAYER", "name": "Navy Heavy Crewneck Sweatshirt", "brand": "Alex Mill", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "Cream Leather Sneakers", "brand": "Veja", "color": "#EFEFEF", "color_name": "cream", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Harrington",
+        "description": "Retro-prep cool \u2014 a Harrington jacket earned its place here",
+        "stylist_note": "Zip the Harrington to about mid-chest and let the white tee show at the neckline. Roll the chinos once \u2014 one clean fold. White leather sneakers make the whole thing read young and put-together simultaneously. This outfit works everywhere from brunch to the hardware store.",
+        "style_tags": ["Smart Casual", "Weekend Elevated", "Casual Prep"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Olive Harrington Jacket", "brand": "Baracuta", "color": "#6B6B3C", "color_name": "olive", "image_url": null },
+          { "category": "SHIRT", "name": "White Pocket Tee", "brand": "Alex Mill", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Mid Khaki Slim Chinos", "brand": "Banana Republic", "color": "#BFAA88", "color_name": "mid khaki", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Sneakers", "brand": "Veja", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      }
+    ]
   },
   "warm": {
-    "office": [],
-    "weekend": []
+    "office": [
+      {
+        "name": "The Spring Office",
+        "description": "Army green knit polo \u2014 the spring fintech uniform",
+        "stylist_note": "Go with a French tuck \u2014 back and sides tucked, a small front section left out. It reads intentional, not messy. Match the cognac belt to your shoes exactly. The army green/stone combo is an earth-tone spring move that reads elevated and easy simultaneously.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Spring Ready"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Army Green Knit Polo", "brand": "Club Monaco", "color": "#6B7A4A", "color_name": "army green", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Trousers", "brand": "Banana Republic", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Tan Suede Loafers", "brand": "G.H. Bass", "color": "#C4A882", "color_name": "tan suede", "image_url": null },
+          { "category": "ACCESSORIES", "name": "Cognac Leather Belt", "brand": "Allen Edmonds", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Warm Day OCBD",
+        "description": "Light blue oxford and navy trousers \u2014 quietly sharp",
+        "stylist_note": "Leave the OCBD partially untucked in the French tuck style \u2014 back tucked, front loose. Open two shirt buttons at the collar. No undershirt visible. The light blue/navy combination is intentionally coastal \u2014 exactly the right signal for a warm NYC office day.",
+        "style_tags": ["Classic Preppy", "Fintech Business Casual", "Smart Casual"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Light Blue Linen OCBD", "brand": "Alex Mill", "color": "#A8C4D4", "color_name": "light blue", "image_url": null },
+          { "category": "PANTS", "name": "Navy Slim Trousers", "brand": "Todd Snyder", "color": "#2A3550", "color_name": "navy", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Leather Loafers", "brand": "Allen Edmonds", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Merino Polo Day",
+        "description": "Slate blue merino polo and stone chinos \u2014 the clean spring formula",
+        "stylist_note": "Merino polo tucked in, full tuck. One collar button open. Stone chinos with a clean break. Dark suede derbies add texture without weight. This is a one-degree-nicer version of khaki-and-polo that reads fintech rather than golf club.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Spring Clean"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Slate Blue Merino Polo", "brand": "Club Monaco", "color": "#7A8FA8", "color_name": "slate blue", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Chinos", "brand": "Banana Republic", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Dark Brown Suede Derby Shoes", "brand": "Allen Edmonds", "color": "#4A2E1A", "color_name": "dark brown suede", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Navy Pique Office",
+        "description": "Navy pique polo and stone trousers \u2014 unfussy and sharp",
+        "stylist_note": "Navy pique polo, fully tucked. Two collar buttons open. Stone trousers pressed with a crease. Tan leather loafers. This is the look that requires zero decisions but telegraphs good taste \u2014 the fintech uniform done with intention.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Classic Preppy"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Navy Pique Polo", "brand": "Club Monaco", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Trousers", "brand": "Todd Snyder", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Tan Leather Loafers", "brand": "G.H. Bass", "color": "#C4A882", "color_name": "tan", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Sage Linen Office",
+        "description": "Sage green linen shirt and navy trousers \u2014 spring color done right",
+        "stylist_note": "Sage linen over navy slim trousers is a coastal-professional combination. French tuck the linen shirt \u2014 it's too relaxed for a full tuck. Two buttons open. Cognac loafers. Let the linen wrinkle a little: fighting it makes you look anxious.",
+        "style_tags": ["Smart Casual", "Spring Elevated", "Fintech Business Casual"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Sage Green Linen Shirt", "brand": "Alex Mill", "color": "#8A9A7A", "color_name": "sage green", "image_url": null },
+          { "category": "PANTS", "name": "Navy Slim Trousers", "brand": "Todd Snyder", "color": "#2A3550", "color_name": "navy", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Leather Loafers", "brand": "Allen Edmonds", "color": "#8B5E3C", "color_name": "cognac", "image_url": null }
+        ]
+      }
+    ],
+    "weekend": [
+      {
+        "name": "The Port Casual",
+        "description": "OCBD and khaki shorts \u2014 coastal prep in its natural habitat",
+        "stylist_note": "Roll the shorts once at the hem \u2014 one clean 1.5-inch roll. Tuck the OCBD in the back and let the front hang loose. Boat shoes no-sock. This is exactly the effortless coastal look that reads right in Port Washington \u2014 confident and uncontrived.",
+        "style_tags": ["Classic Preppy", "Weekend Coastal", "Relaxed Prep"],
+        "pieces": [
+          { "category": "SHIRT", "name": "White Short Sleeve OCBD", "brand": "J.Crew", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Mid Khaki Slim Shorts", "brand": "Faherty", "color": "#C4AA80", "color_name": "mid khaki", "image_url": null },
+          { "category": "SHOES", "name": "Tan Leather Boat Shoes", "brand": "Sperry", "color": "#C4A882", "color_name": "tan", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Spring Saturday",
+        "description": "Stripe tee and chinos \u2014 the casual formula that always lands",
+        "stylist_note": "Untucked stripe tee, clean. Roll the chinos to mid-ankle \u2014 one and a half turns is exactly right. White sneakers keep it young. This outfit signals effortless taste \u2014 the stripe tee is doing significant style work for zero effort.",
+        "style_tags": ["Classic Preppy", "Weekend Easy", "Smart Casual"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Navy Stripe Crew Tee", "brand": "Saint James", "color": "#2A3B5C", "color_name": "navy and white stripe", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Chinos", "brand": "Banana Republic", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Sneakers", "brand": "Veja", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Linen Casual",
+        "description": "Cream linen shirt and dark jeans \u2014 relaxed but composed",
+        "stylist_note": "Cream linen shirt untucked over dark slim jeans is a quietly elevated casual move. Leave two or three buttons open. White leather sneakers. The contrast of the relaxed linen against dark fitted denim creates casual tension that looks effortless.",
+        "style_tags": ["Weekend Elevated", "Smart Casual", "Spring Easy"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Cream Linen Shirt", "brand": "Alex Mill", "color": "#E8E0D0", "color_name": "cream", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Sneakers", "brand": "Veja", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Terry Polo Dad",
+        "description": "Light blue terry polo and stone chinos \u2014 warm-weather casual with texture",
+        "stylist_note": "Terry polo, half-tucked. Stone slim chinos rolled once at the ankle. White cup-sole sneakers. The textured terry fabric does the work \u2014 everything else is clean and simple. This outfit reads relaxed resort energy without trying to be a resort outfit.",
+        "style_tags": ["Weekend Easy", "Fashionable Dad", "Smart Casual"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Light Blue Terry Polo", "brand": "Club Monaco", "color": "#A8C4D4", "color_name": "light blue", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Chinos", "brand": "Banana Republic", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "White Cup-Sole Sneakers", "brand": "Veja", "color": "#EFEFEF", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Sweatshirt Saturday",
+        "description": "Oatmeal crewneck and dark jeans \u2014 the weekend standard elevated",
+        "stylist_note": "Heavy no-logo oatmeal crewneck, slightly oversized but not boxy. Dark slim jeans \u2014 the slim cut prevents it from reading too casual. Roll the jeans once. White leather sneakers. This is the look that requires no effort and looks like all the effort.",
+        "style_tags": ["Weekend Easy", "Fashionable Dad", "Smart Casual"],
+        "pieces": [
+          { "category": "LAYER", "name": "Oatmeal Heavy Crewneck Sweatshirt", "brand": "Alex Mill", "color": "#D4C9B0", "color_name": "oatmeal", "image_url": null },
+          { "category": "PANTS", "name": "Dark Indigo Slim Jeans", "brand": "AG Jeans", "color": "#2D3A5A", "color_name": "dark indigo", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Sneakers", "brand": "Veja", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      }
+    ]
   },
   "hot": {
-    "office": [],
-    "weekend": []
+    "office": [
+      {
+        "name": "The Linen Summer",
+        "description": "White linen and navy \u2014 summer power without the sweat",
+        "stylist_note": "Linen wrinkles \u2014 embrace it, don't fight it. French tuck the OCBD so the front drapes naturally. Leave two collar buttons open. Linen trousers with tobacco suede loafers is a considered warm-weather power move that fintech offices don't see enough of.",
+        "style_tags": ["Smart Casual", "Summer Elevated", "Classic Preppy"],
+        "pieces": [
+          { "category": "SHIRT", "name": "White Linen OCBD", "brand": "Alex Mill", "color": "#F0EDE8", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Slim Navy Linen Trousers", "brand": "Todd Snyder", "color": "#2A3550", "color_name": "navy", "image_url": null },
+          { "category": "SHOES", "name": "Tobacco Suede Loafers", "brand": "G.H. Bass", "color": "#8B6A3C", "color_name": "tobacco suede", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Navy Linen Office",
+        "description": "Navy linen shirt and stone linen trousers \u2014 the full linen summer suit alternative",
+        "stylist_note": "Navy linen over stone linen is a deliberate tone-on-tone approach to summer dressing. French tuck. Two collar buttons open. Tan leather loafers. This outfit reads as though you planned a summer capsule, which you did.",
+        "style_tags": ["Smart Casual", "Summer Elevated", "Fintech Business Casual"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Navy Linen Shirt", "brand": "Alex Mill", "color": "#2A3550", "color_name": "navy", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Linen Trousers", "brand": "Banana Republic", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Tan Leather Loafers", "brand": "G.H. Bass", "color": "#C4A882", "color_name": "tan", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Summer Polo",
+        "description": "Light grey merino polo and stone slim trousers \u2014 cool and controlled",
+        "stylist_note": "Light grey merino polo is a summer stealth move \u2014 it reads dressy from a distance, wears like a t-shirt. Full tuck, one button open. Stone slim trousers pressed. Cognac suede loafers add warmth to the grey. Understated and unmistakably considered.",
+        "style_tags": ["Smart Casual", "Fintech Business Casual", "Summer Clean"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Light Grey Merino Polo", "brand": "Club Monaco", "color": "#C4C4C4", "color_name": "light grey", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Trousers", "brand": "Todd Snyder", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Cognac Suede Loafers", "brand": "G.H. Bass", "color": "#8B5E3C", "color_name": "cognac suede", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Sage Shirt Office",
+        "description": "Sage green linen OCBD and white linen trousers \u2014 summer color confidence",
+        "stylist_note": "Sage linen over white linen trousers is a risk that pays off. Full French tuck, three buttons open. White leather derbies. Keep accessories minimal \u2014 one watch. This is a fintech summer look that reads fashion-aware without looking like you're trying.",
+        "style_tags": ["Smart Casual", "Summer Elevated", "Color Confidence"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Sage Green Linen OCBD", "brand": "Alex Mill", "color": "#8A9A7A", "color_name": "sage green", "image_url": null },
+          { "category": "PANTS", "name": "White Slim Linen Trousers", "brand": "Todd Snyder", "color": "#F0EEEA", "color_name": "white", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Derby Shoes", "brand": "Allen Edmonds", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Sky Blue Office",
+        "description": "Sky blue linen OCBD and white slim trousers \u2014 effortlessly coastal professional",
+        "stylist_note": "Sky blue and white is a summer classic for a reason. French tuck. Two collar buttons open. White leather loafers. This is the look that makes people assume you sailed here. Allow yourself one seasonal flourish: a woven belt in tan or cognac if you want it.",
+        "style_tags": ["Classic Preppy", "Summer Elevated", "Coastal Professional"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Sky Blue Linen OCBD", "brand": "Alex Mill", "color": "#A8C4D4", "color_name": "sky blue", "image_url": null },
+          { "category": "PANTS", "name": "White Slim Trousers", "brand": "Banana Republic", "color": "#F0EEEA", "color_name": "white", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Loafers", "brand": "G.H. Bass", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      }
+    ],
+    "weekend": [
+      {
+        "name": "The Hot Saturday",
+        "description": "Camp collar and linen shorts \u2014 resort energy without going full tourist",
+        "stylist_note": "Leave the camp collar fully open \u2014 that's the entire silhouette. No tuck. Espadrilles add quiet summer sophistication over flip-flops. This outfit says you know what you're doing on a hot Saturday in Port Washington.",
+        "style_tags": ["Smart Casual", "Summer Weekend", "Resort Easy"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Sage Camp Collar Shirt", "brand": "Faherty", "color": "#8A9A7A", "color_name": "sage", "image_url": null },
+          { "category": "PANTS", "name": "Cream Linen Shorts", "brand": "Alex Mill", "color": "#E8E0D0", "color_name": "cream", "image_url": null },
+          { "category": "SHOES", "name": "Natural Espadrilles", "brand": "Castaner", "color": "#C4A882", "color_name": "natural", "image_url": null }
+        ]
+      },
+      {
+        "name": "The LIRR Summer",
+        "description": "Clean and breezy for hot transit days into the city",
+        "stylist_note": "The light blue tee and white shorts combination is deceptively intentional \u2014 navy/white is a palette, not an accident. Keep the sneakers pristine. Sunglasses on the collar (not on the head). This outfit reads understated summer confidence.",
+        "style_tags": ["Classic Preppy", "Summer Easy", "Smart Casual"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Light Blue Slub Crew Tee", "brand": "Alex Mill", "color": "#A8C4D4", "color_name": "light blue", "image_url": null },
+          { "category": "PANTS", "name": "White Slim Shorts", "brand": "Club Monaco", "color": "#F0EEEA", "color_name": "white", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Sneakers", "brand": "Veja", "color": "#F5F5F5", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Navy Camp",
+        "description": "Navy camp collar shirt and cream linen shorts \u2014 the summer uniform perfected",
+        "stylist_note": "Navy camp collar fully open over a plain white tee underneath. Cream linen shorts with one light roll at the hem. White leather sneakers. Sunglasses. This is three-ingredient summer dressing: camp collar, shorts, clean shoes. Nothing more needed.",
+        "style_tags": ["Smart Casual", "Summer Weekend", "Classic Prep"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Navy Camp Collar Shirt", "brand": "Faherty", "color": "#2A3B5C", "color_name": "navy", "image_url": null },
+          { "category": "LAYER", "name": "White Crew Tee", "brand": "Alex Mill", "color": "#F5F2ED", "color_name": "white", "image_url": null },
+          { "category": "PANTS", "name": "Cream Linen Shorts", "brand": "Alex Mill", "color": "#E8E0D0", "color_name": "cream", "image_url": null },
+          { "category": "SHOES", "name": "White Leather Sneakers", "brand": "Veja", "color": "#F0EEEA", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Pale Yellow Weekend",
+        "description": "Pale yellow terry polo and light linen shorts \u2014 summer color done quietly",
+        "stylist_note": "Pale yellow is the summer color that confident dressers reach for while everyone else plays it safe. Terry polo untucked, light khaki linen shorts. White canvas sneakers. This is the outfit that photographs beautifully and wears even better at an outdoor table in Port.",
+        "style_tags": ["Weekend Easy", "Summer Color", "Fashionable Dad"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Pale Yellow Terry Polo", "brand": "Club Monaco", "color": "#F0E6B0", "color_name": "pale yellow", "image_url": null },
+          { "category": "PANTS", "name": "Light Khaki Linen Shorts", "brand": "Faherty", "color": "#D4C9A0", "color_name": "light khaki", "image_url": null },
+          { "category": "SHOES", "name": "White Canvas Sneakers", "brand": "Veja", "color": "#F5F5F5", "color_name": "white", "image_url": null }
+        ]
+      },
+      {
+        "name": "The Stripe Linen Weekend",
+        "description": "Short-sleeve stripe oxford and stone linen shorts \u2014 coastal confidence",
+        "stylist_note": "Stripe short-sleeve oxford, two buttons open, untucked. Stone linen shorts with one small roll at the hem. Tan leather sandals \u2014 the only time sandals work is when everything else is intentional. This outfit belongs at a waterfront lunch in Port Washington.",
+        "style_tags": ["Classic Preppy", "Summer Weekend", "Coastal Prep"],
+        "pieces": [
+          { "category": "SHIRT", "name": "Blue Stripe Short-Sleeve Oxford", "brand": "J.Crew", "color": "#A8C4D4", "color_name": "blue stripe", "image_url": null },
+          { "category": "PANTS", "name": "Stone Slim Linen Shorts", "brand": "Alex Mill", "color": "#C4B89A", "color_name": "stone", "image_url": null },
+          { "category": "SHOES", "name": "Tan Leather Sandals", "brand": "Birkenstock", "color": "#C4A882", "color_name": "tan", "image_url": null }
+        ]
+      }
+    ]
   }
 }
