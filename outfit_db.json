@@ -1,0 +1,32 @@
+{
+  "frigid": {
+    "office": [
+      {
+        "name": "The Frigid Office",
+        "description": "Heavy layering for extreme cold",
+        "stylist_note": "Replace this with your real outfit data from outfit_db.json in the Co-Work session.",
+        "style_tags": ["Smart Casual"],
+        "pieces": [
+          { "category": "OUTERWEAR", "name": "Placeholder Coat", "brand": "", "color": "#1a1a1a", "color_name": "black" }
+        ]
+      }
+    ],
+    "weekend": []
+  },
+  "cold": {
+    "office": [],
+    "weekend": []
+  },
+  "cool": {
+    "office": [],
+    "weekend": []
+  },
+  "warm": {
+    "office": [],
+    "weekend": []
+  },
+  "hot": {
+    "office": [],
+    "weekend": []
+  }
+}
