@@ -1,10 +1,11 @@
 """
 Image generation with Railway Volume caching.
 - Product images: DALL-E-3 (cached by piece description hash)
-- Portrait: Google Imagen 3 primary, DALL-E-3 fallback (cached by outfit hash)
+- Portrait: Google Imagen 3 primary, DALL-E-3 fallback (cached by outfit + context hash)
 """
 import hashlib
 import os
+import re
 from pathlib import Path
 
 import httpx
@@ -17,6 +18,33 @@ except ImportError:
     _ggenai = None
 
 import state
+
+
+def _style_summary() -> str:
+    """
+    Extract a concise style brief from claudio_context.md for prompt injection.
+    Pulls: one-line style summary + last 3 refinement log entries.
+    Kept short so it fits cleanly inside a DALL-E/Imagen prompt.
+    """
+    ctx = state.get_context()
+    if not ctx:
+        return ""
+
+    parts = []
+
+    # One-sentence style summary
+    m = re.search(r"## My Style in One Sentence\s*\n+(.+)", ctx)
+    if m:
+        parts.append(m.group(1).strip())
+
+    # Last 3 refinement log entries (change text only)
+    log_entries = re.findall(r"\|\s*[\d-]+\s*\|\s*(.+?)\s*\|", ctx)
+    # Skip the header row
+    log_entries = [e for e in log_entries if e.lower() not in ("change", "---")]
+    for entry in log_entries[-3:]:
+        parts.append(f"Style note: {entry.strip()}")
+
+    return " ".join(parts)
 
 
 def _cache_key(text: str) -> str:
@@ -129,6 +157,9 @@ def gen_portrait(outfit: dict, context: str, weather: dict) -> bytes:
         descs.append(entry)
     outfit_str = ", ".join(descs) if descs else "casual outfit"
 
+    style = _style_summary()
+    style_line = f"Style context: {style} " if style else ""
+
     prompt = (
         "Full standing body shot of ONE man. SINGLE PERSON ONLY. "
         "CRITICAL: Show the COMPLETE figure — top of head at very top of frame, "
@@ -140,11 +171,14 @@ def gen_portrait(outfit: dict, context: str, weather: dict) -> bytes:
         "slight confident smile, facing camera. "
         "Clean off-white studio background. "
         "Short brown hair, green eyes, lean athletic build, 6'2\", mid-30s. "
+        f"{style_line}"
         "Soft even studio lighting. Photorealistic, full-length fashion catalog photo. "
         "Vertical 2:3 format. Wide enough frame to show complete figure head to toe."
     )
 
-    cached = _cache_path(f"portrait_{_cache_key(outfit_str + context)}")
+    # Cache key includes context hash so portrait regenerates when style notes change
+    context_hash = _cache_key(style)
+    cached = _cache_path(f"portrait_{_cache_key(outfit_str + context)}_{context_hash}")
     if cached.exists():
         print(f"[image_gen] portrait cache hit: {outfit.get('name')}")
         return cached.read_bytes()
