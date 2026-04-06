@@ -238,7 +238,10 @@ def generate_card(weather: dict, outfit: dict, output_path: str, context: str = 
         page = browser.new_page(viewport={"width": 1080, "height": 1920})
         page.set_content(html, wait_until="networkidle", timeout=20000)
         page.wait_for_timeout(1000)  # allow fonts to render
-        page.screenshot(path=output_path, full_page=True)
+        # Measure actual content height and resize viewport to eliminate whitespace
+        content_height = page.evaluate("document.documentElement.scrollHeight")
+        page.set_viewport_size({"width": 1080, "height": content_height})
+        page.screenshot(path=output_path, full_page=False)
         browser.close()
 
     return output_path

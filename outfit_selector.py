@@ -140,6 +140,15 @@ def apply_weather_overrides(outfit: dict, weather: dict) -> dict:
         swap_note = f"Rain today — swapped {swapped[0]} for leather boots. "
         outfit["stylist_note"] = swap_note + outfit.get("stylist_note", "")
 
+    # Cold + loafers: remind about socks
+    feels = weather.get("feels_like_f") or 50
+    if feels < 50 and not is_wet_day(weather):
+        for piece in outfit.get("pieces", []):
+            if piece.get("category") == "SHOES" and "loafer" in piece.get("name", "").lower():
+                sock_note = "Cold enough for socks — charcoal or navy dress socks with the loafers. "
+                outfit["stylist_note"] = sock_note + outfit.get("stylist_note", "")
+                break
+
     return outfit
 
 
@@ -199,8 +208,11 @@ def suggest_accessories(outfit: dict, weather: dict) -> dict:
 
 
 def weather_description(weather: dict) -> str:
-    """Short human-readable weather string for the card header."""
+    """Human-readable weather string for the card header."""
+    temp = weather.get("temp_f")
     feels = weather.get("feels_like_f")
+    temp_max = weather.get("temp_max")
+    temp_min = weather.get("temp_min")
     code = weather.get("weathercode", 0)
     precip = weather.get("precip_prob") or 0
 
@@ -208,5 +220,17 @@ def weather_description(weather: dict) -> str:
     if precip >= 50:
         condition += " · Rain likely"
 
-    temp_str = f"{int(feels)}°F" if feels is not None else "—"
-    return f"{temp_str} · {condition}"
+    # Show actual temp as primary, feels-like only when meaningfully different
+    if temp is not None:
+        temp_str = f"{int(temp)}°F"
+        if feels is not None and abs(temp - feels) >= 5:
+            temp_str += f" (feels {int(feels)}°F)"
+    else:
+        temp_str = "—"
+
+    # High / low
+    range_str = ""
+    if temp_max is not None and temp_min is not None:
+        range_str = f" · H {int(temp_max)}° L {int(temp_min)}°"
+
+    return f"{temp_str} · {condition}{range_str}"
