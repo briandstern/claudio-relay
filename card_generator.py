@@ -122,8 +122,8 @@ def _build_html(
     font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
     padding: 5px 16px; border-radius: 20px; margin-top: 12px;
   }
-  .body { display: flex; background: #FAFAF8; min-height: 900px; }
-  .grid-col { width: 490px; flex-shrink: 0; padding: 40px 24px 40px 56px; }
+  .body { display: flex; background: #FAFAF8; }
+  .grid-col { width: 490px; flex-shrink: 0; padding: 40px 24px 40px 56px; display: flex; flex-direction: column; justify-content: space-between; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .cell { background: #EDEBE5; border-radius: 10px; overflow: hidden; }
   .cell-label { padding: 10px 12px 13px; display: flex; flex-direction: column; gap: 3px; }

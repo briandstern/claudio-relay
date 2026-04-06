@@ -119,10 +119,13 @@ def gen_portrait(outfit: dict, context: str, weather: dict) -> bytes:
     for p in pieces:
         col = p.get("color_name") or color_name(p.get("color", "#888888"))
         name = p.get("name", "")
+        category = p.get("category", "").lower()
         brand = p.get("brand", "")
         entry = f"{col} {name}".strip()
+        if category:
+            entry = f"{entry} (worn as {category})"
         if brand:
-            entry += f" ({brand})"
+            entry += f" by {brand}"
         descs.append(entry)
     outfit_str = ", ".join(descs) if descs else "casual outfit"
 
@@ -131,7 +134,8 @@ def gen_portrait(outfit: dict, context: str, weather: dict) -> bytes:
         "CRITICAL: Show the COMPLETE figure — top of head at very top of frame, "
         "shoes and feet FULLY VISIBLE at very bottom of frame. "
         "DO NOT CROP. Nothing cut off. Full length head to toe. "
-        f"He is wearing: {outfit_str}. "
+        f"He is wearing exactly these items: {outfit_str}. "
+        "Render each garment accurately — the specific item type, color, and layering order matter. "
         "Standing upright, hands relaxed at sides or in pockets, "
         "slight confident smile, facing camera. "
         "Clean off-white studio background. "

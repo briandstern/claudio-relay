@@ -73,6 +73,11 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
         tier = get_tier(weather["feels_like_f"])
         outfit = select_outfit(tier, context)
 
+    # Idempotency: skip if a card was already sent today
+    today = datetime.now().strftime("%Y-%m-%d")
+    if state.get_last_sent() == today:
+        return {"ok": True, "skipped": True, "reason": "already sent today"}
+
     tier = get_tier(weather["feels_like_f"])
     last_error = None
 
