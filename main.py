@@ -48,6 +48,7 @@ class GenerateRequest(BaseModel):
     outfit: dict | None = None
     context: str = "office"
     caption: str = ""
+    force: bool = False
 
 
 @app.get("/health")
@@ -75,9 +76,9 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
         tier = get_tier(weather["feels_like_f"])
         outfit = select_outfit(tier, context)
 
-    # Idempotency: skip if a card was already sent today
+    # Idempotency: skip if a card was already sent today (bypass with force=True)
     today = datetime.now().strftime("%Y-%m-%d")
-    if state.get_last_sent() == today:
+    if not request.force and state.get_last_sent() == today:
         return {"ok": True, "skipped": True, "reason": "already sent today"}
 
     # Apply weather overrides (swap suede → leather when rain) and fill in accessories
