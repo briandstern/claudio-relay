@@ -102,6 +102,102 @@ def advance_rotation(tier: str, context: str):
     state.set_rotation_index(tier, context, (current + 1) % len(outfits))
 
 
+_WET_CODES = {51, 53, 55, 61, 63, 65, 80, 81, 82, 95}
+_RAIN_SENSITIVE = ["suede", "canvas", "espadrille", "boat shoe", "duck boot"]
+
+
+def is_wet_day(weather: dict) -> bool:
+    precip = weather.get("precip_prob") or 0
+    code = weather.get("weathercode", 0)
+    return precip >= 50 or code in _WET_CODES
+
+
+def apply_weather_overrides(outfit: dict, weather: dict) -> dict:
+    """
+    Swap rain-sensitive shoes (suede, canvas) for leather boots when rain is likely.
+    Prepends a note to the stylist tip when a swap occurs.
+    Returns a modified deep copy.
+    """
+    import copy
+    if not is_wet_day(weather):
+        return outfit
+
+    outfit = copy.deepcopy(outfit)
+    swapped = []
+    for piece in outfit.get("pieces", []):
+        if piece.get("category") != "SHOES":
+            continue
+        name_lower = piece.get("name", "").lower()
+        if any(s in name_lower for s in _RAIN_SENSITIVE):
+            swapped.append(piece["name"])
+            piece["name"] = "Cognac Leather Chelsea Boots"
+            piece["brand"] = "Thursday Boot Co."
+            piece["color"] = "#8B5E3C"
+            piece["color_name"] = "cognac"
+            piece["image_url"] = None
+
+    if swapped:
+        swap_note = f"Rain today — swapped {swapped[0]} for leather boots. "
+        outfit["stylist_note"] = swap_note + outfit.get("stylist_note", "")
+
+    return outfit
+
+
+def suggest_accessories(outfit: dict, weather: dict) -> dict:
+    """
+    Add contextually appropriate accessories that are missing from the outfit:
+    - Belt: when trousers/chinos present, shirt is tucked, no belt, no jeans
+    - Scarf: when cold/frigid, no scarf already, outerwear present
+    Returns a modified deep copy.
+    """
+    import copy
+    outfit = copy.deepcopy(outfit)
+    pieces = outfit["pieces"]
+    categories = {p.get("category", "").upper() for p in pieces}
+    names_lower = " ".join(p.get("name", "").lower() for p in pieces)
+
+    # ── Belt ──────────────────────────────────────────────────────────────
+    has_trousers = "PANTS" in categories and "jean" not in names_lower
+    has_tucked_layer = "SHIRT" in categories or any(
+        p.get("category") == "LAYER" and "turtleneck" not in p.get("name", "").lower()
+        for p in pieces
+    )
+    has_belt = "BELT" in categories or "belt" in names_lower
+
+    if has_trousers and has_tucked_layer and not has_belt:
+        # Match belt color to shoes
+        shoe_color, shoe_color_name = "#8B5E3C", "cognac"
+        for p in pieces:
+            if p.get("category") == "SHOES":
+                shoe_color = p.get("color", shoe_color)
+                shoe_color_name = p.get("color_name", shoe_color_name)
+                break
+        pieces.append({
+            "category": "BELT",
+            "name": f"{shoe_color_name.title()} Leather Belt",
+            "brand": "Allen Edmonds",
+            "color": shoe_color,
+            "color_name": shoe_color_name,
+            "image_url": None,
+        })
+
+    # ── Scarf ─────────────────────────────────────────────────────────────
+    feels = weather.get("feels_like_f") or 50
+    has_scarf = "scarf" in names_lower
+    if feels < 43 and not has_scarf and "OUTERWEAR" in categories:
+        pieces.append({
+            "category": "ACCESSORIES",
+            "name": "Grey Wool Scarf",
+            "brand": "Alex Mill",
+            "color": "#8A8A8A",
+            "color_name": "grey",
+            "image_url": None,
+        })
+
+    outfit["pieces"] = pieces
+    return outfit
+
+
 def weather_description(weather: dict) -> str:
     """Short human-readable weather string for the card header."""
     feels = weather.get("feels_like_f")

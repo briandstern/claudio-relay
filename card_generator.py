@@ -32,6 +32,30 @@ def _img_to_b64(data: bytes) -> str:
     return f"data:image/webp;base64,{b64}"
 
 
+def _weather_context_line(weather: dict) -> str:
+    """One punchy line about today's conditions for the card footer."""
+    from outfit_selector import is_wet_day
+    feels = weather.get("feels_like_f")
+    code = weather.get("weathercode", 0)
+    wind = weather.get("windspeed_mph") or 0
+    precip = weather.get("precip_prob") or 0
+    temp = int(feels) if feels is not None else None
+
+    if is_wet_day(weather):
+        if code in {71, 73, 75}:
+            return "Snow on the ground. Leather boots, sealed collar, no suede."
+        return "Rain today. Leather over suede, sealed neckline on the platform."
+    if temp is not None and temp < 25:
+        return "Brutal out there. Coat buttoned, scarf tight, gloves in pocket."
+    if temp is not None and temp < 43:
+        return "Cold commute. Layer up — you can always remove at the office."
+    if temp is not None and temp > 72:
+        return "Warm one. Linen breathes, light layers only."
+    if wind >= 20:
+        return "Windy today. Keep the collar up and the jacket zipped on the platform."
+    return ""
+
+
 def _build_html(
     outfit: dict,
     item_imgs: list,
@@ -139,6 +163,10 @@ def _build_html(
     font-family: 'Playfair Display', serif; font-style: italic;
     font-size: 22px; color: #F5F3EF; line-height: 1.55;
   }
+  .weather-context {
+    font-size: 13px; font-weight: 500; color: #8B7355;
+    margin-top: 20px; letter-spacing: 0.03em;
+  }
 """
 
     return f"""<!DOCTYPE html>
@@ -169,6 +197,7 @@ def _build_html(
   <div class="footer">
     <div class="tip-label">STYLIST TIP</div>
     <div class="tip-text">"{stylist_note}"</div>
+    {f'<div class="weather-context">{_weather_context_line(weather)}</div>' if _weather_context_line(weather) else ''}
   </div>
 </body>
 </html>"""

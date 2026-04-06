@@ -12,10 +12,12 @@ import telegram_client
 from card_generator import generate_card
 from outfit_selector import (
     advance_rotation,
+    apply_weather_overrides,
     fetch_weather,
     get_day_context,
     get_tier,
     select_outfit,
+    suggest_accessories,
 )
 
 API_SECRET = os.environ.get("API_SECRET", "")
@@ -77,6 +79,10 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
     today = datetime.now().strftime("%Y-%m-%d")
     if state.get_last_sent() == today:
         return {"ok": True, "skipped": True, "reason": "already sent today"}
+
+    # Apply weather overrides (swap suede → leather when rain) and fill in accessories
+    outfit = apply_weather_overrides(outfit, weather)
+    outfit = suggest_accessories(outfit, weather)
 
     tier = get_tier(weather["feels_like_f"])
     last_error = None
