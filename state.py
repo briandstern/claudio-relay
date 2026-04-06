@@ -95,6 +95,64 @@ def add_wardrobe_items(items: list):
     return added
 
 
+def get_recent_outfits(n: int = 14) -> list:
+    """Return last n outfit summaries (for deduplication in compose prompt)."""
+    return _read_state().get("recent_outfits", [])[-n:]
+
+
+def add_recent_outfit(name: str, pieces_summary: str):
+    from datetime import datetime
+    s = _read_state()
+    recent = s.get("recent_outfits", [])
+    recent.append({
+        "name": name,
+        "pieces_summary": pieces_summary,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+    })
+    s["recent_outfits"] = recent[-30:]
+    _write_state(s)
+
+
+def store_outfit_for_rating(outfit_hash: str, outfit_name: str, pieces_summary: str):
+    """Store outfit metadata keyed by hash so ratings can reference it later."""
+    s = _read_state()
+    store = s.get("outfit_rating_store", {})
+    store[outfit_hash] = {"outfit_name": outfit_name, "pieces_summary": pieces_summary}
+    # Keep last 30 entries
+    if len(store) > 30:
+        for k in list(store.keys())[:-30]:
+            del store[k]
+    s["outfit_rating_store"] = store
+    _write_state(s)
+
+
+def add_outfit_rating(outfit_hash: str, rating: str):
+    """Record a thumbs up/down for an outfit. rating: 'up' or 'down'."""
+    from datetime import datetime
+    s = _read_state()
+    store = s.get("outfit_rating_store", {})
+    info = store.get(outfit_hash, {})
+    ratings = s.get("outfit_ratings", [])
+    for r in ratings:
+        if r["outfit_hash"] == outfit_hash:
+            r["rating"] = rating
+            _write_state(s)
+            return
+    ratings.append({
+        "outfit_hash": outfit_hash,
+        "outfit_name": info.get("outfit_name", ""),
+        "pieces_summary": info.get("pieces_summary", ""),
+        "rating": rating,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+    })
+    s["outfit_ratings"] = ratings[-50:]
+    _write_state(s)
+
+
+def get_outfit_ratings(n: int = 20) -> list:
+    return _read_state().get("outfit_ratings", [])[-n:]
+
+
 def append_context(text: str):
     """Append a feedback entry to claudio_context.md on the volume."""
     _ensure_dirs()

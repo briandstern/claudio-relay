@@ -1,3 +1,4 @@
+import hashlib
 import os
 import tempfile
 from contextlib import asynccontextmanager
@@ -13,6 +14,7 @@ from card_generator import generate_card
 from outfit_selector import (
     advance_rotation,
     apply_weather_overrides,
+    compose_outfit,
     fetch_weather,
     get_day_context,
     get_tier,
@@ -68,13 +70,19 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
     weather = request.weather
     outfit = request.outfit
     context = request.context
+    used_static_db = False
 
     if weather is None:
         weather = fetch_weather()
     if outfit is None:
         context = get_day_context()
-        tier = get_tier(weather["feels_like_f"])
-        outfit = select_outfit(tier, context)
+        wardrobe = state.get_wardrobe()
+        if wardrobe:
+            outfit = compose_outfit(weather, context)
+        else:
+            tier = get_tier(weather["feels_like_f"])
+            outfit = select_outfit(tier, context)
+            used_static_db = True
 
     # Idempotency: skip if a card was already sent today (bypass with force=True)
     today = datetime.now().strftime("%Y-%m-%d")
@@ -86,6 +94,12 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
     outfit = suggest_accessories(outfit, weather)
 
     tier = get_tier(weather["feels_like_f"])
+
+    # Build outfit hash + summary for rating buttons and history
+    pieces_summary = ", ".join(p.get("name", "") for p in outfit.get("pieces", []))
+    outfit_hash = hashlib.sha256(pieces_summary.encode()).hexdigest()[:16]
+    state.store_outfit_for_rating(outfit_hash, outfit.get("name", ""), pieces_summary)
+
     last_error = None
 
     for attempt in range(1, 3):
@@ -99,9 +113,11 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
             with open(tmp_path, "rb") as f:
                 image_bytes = f.read()
 
-            result = telegram_client.send_card(image_bytes, request.caption)
+            result = telegram_client.send_card(image_bytes, request.caption, outfit_hash=outfit_hash)
 
-            advance_rotation(tier, context)
+            if used_static_db:
+                advance_rotation(tier, context)
+            state.add_recent_outfit(outfit.get("name", ""), pieces_summary)
             state.set_last_sent(datetime.now().strftime("%Y-%m-%d"))
 
             return {"ok": True, "message_id": result["result"]["message_id"]}
@@ -123,10 +139,29 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
 
 @app.post("/telegram-webhook")
 async def telegram_webhook(request: Request):
-    """Receive Telegram messages/photos from Brian."""
+    """Receive Telegram messages, photos, and inline button callbacks from Brian."""
     try:
         update = await request.json()
     except Exception:
+        return {"ok": True}
+
+    # ── Inline button callback (👍 / 👎 ratings) ──────────────────────────
+    callback = update.get("callback_query")
+    if callback:
+        query_id = callback.get("id")
+        data = callback.get("data", "")
+        chat_id = str(callback.get("from", {}).get("id", ""))
+        if chat_id == str(TELEGRAM_CHAT_ID):
+            parts = data.split("_")
+            if len(parts) == 3 and parts[0] == "rate":
+                outfit_hash, direction = parts[1], parts[2]
+                state.add_outfit_rating(outfit_hash, direction)
+                emoji = "👍 Noted." if direction == "up" else "👎 Noted — won't repeat that combination."
+                telegram_client.answer_callback_query(query_id, emoji)
+            else:
+                telegram_client.answer_callback_query(query_id)
+        else:
+            telegram_client.answer_callback_query(query_id)
         return {"ok": True}
 
     message = update.get("message", {})
@@ -139,7 +174,6 @@ async def telegram_webhook(request: Request):
     if message.get("photo"):
         import wardrobe_catalog
         try:
-            # Telegram sends multiple resolutions — use the largest
             file_id = message["photo"][-1]["file_id"]
             image_bytes = telegram_client.download_photo(file_id)
             items = wardrobe_catalog.extract_items_from_photo(image_bytes)

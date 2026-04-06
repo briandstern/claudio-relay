@@ -1,6 +1,7 @@
 """
 Telegram client: send card, send alert text, register webhook.
 """
+import json
 import os
 
 import httpx
@@ -13,18 +14,38 @@ def _base_url() -> str:
     return f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 
 
-def send_card(image_bytes: bytes, caption: str = "") -> dict:
-    """Send PNG as a document (no compression) to Brian's chat."""
+def send_card(image_bytes: bytes, caption: str = "", outfit_hash: str = None) -> dict:
+    """Send PNG as a document (no compression) with optional 👍/👎 rating buttons."""
+    data = {"chat_id": TELEGRAM_CHAT_ID, "caption": caption}
+    if outfit_hash:
+        data["reply_markup"] = json.dumps({
+            "inline_keyboard": [[
+                {"text": "👍", "callback_data": f"rate_{outfit_hash}_up"},
+                {"text": "👎", "callback_data": f"rate_{outfit_hash}_down"},
+            ]]
+        })
     with httpx.Client(timeout=60) as client:
         resp = client.post(
             f"{_base_url()}/sendDocument",
-            data={"chat_id": TELEGRAM_CHAT_ID, "caption": caption},
+            data=data,
             files={"document": ("card.png", image_bytes, "image/png")},
         )
     result = resp.json()
     if not result.get("ok"):
         raise RuntimeError(f"Telegram sendDocument failed: {result}")
     return result
+
+
+def answer_callback_query(callback_query_id: str, text: str = ""):
+    """Dismiss the loading spinner on an inline button press."""
+    try:
+        with httpx.Client(timeout=10) as client:
+            client.post(
+                f"{_base_url()}/answerCallbackQuery",
+                json={"callback_query_id": callback_query_id, "text": text},
+            )
+    except Exception as e:
+        print(f"[telegram] answerCallbackQuery failed: {e}")
 
 
 def send_message(text: str) -> dict:
@@ -66,6 +87,6 @@ def register_webhook(service_url: str):
     with httpx.Client(timeout=10) as client:
         r = client.post(
             f"{_base_url()}/setWebhook",
-            json={"url": webhook_url, "allowed_updates": ["message"]},
+            json={"url": webhook_url, "allowed_updates": ["message", "callback_query"]},
         )
     print(f"[webhook] {r.json()}")

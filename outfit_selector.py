@@ -1,7 +1,10 @@
 """
-Weather fetching, tier/context logic, and outfit selection with rotation.
+Weather fetching, tier/context logic, outfit selection with rotation,
+and AI-composed outfit generation from wardrobe.
 """
 import json
+import os
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -205,6 +208,98 @@ def suggest_accessories(outfit: dict, weather: dict) -> dict:
 
     outfit["pieces"] = pieces
     return outfit
+
+
+def compose_outfit(weather: dict, context: str) -> dict:
+    """
+    Use GPT-4o to compose an outfit from Brian's actual wardrobe.
+    Includes style profile, weather, recent outfit history, and ratings feedback.
+    Falls back to select_outfit() if wardrobe is empty.
+    """
+    from openai import OpenAI
+
+    wardrobe = state.get_wardrobe()
+    if not wardrobe:
+        tier = get_tier(weather["feels_like_f"])
+        return select_outfit(tier, context)
+
+    style_ctx = state.get_context()
+    recent = state.get_recent_outfits(14)
+    ratings = state.get_outfit_ratings(20)
+
+    tier = get_tier(weather.get("feels_like_f", 55))
+    weather_str = weather_description(weather)
+    context_label = (
+        "office — fintech NYC (Clear Street, 4 WTC), business casual elevated"
+        if context == "office"
+        else "weekend — fashionable dad, Port Washington NY, relaxed but intentional"
+    )
+
+    recent_block = ""
+    if recent:
+        names = [r["name"] for r in recent[-7:] if r.get("name")]
+        if names:
+            recent_block = "\nRECENT OUTFITS — do not repeat these exact combinations:\n" + "\n".join(f"- {n}" for n in names)
+
+    liked = [r for r in ratings if r.get("rating") == "up"]
+    disliked = [r for r in ratings if r.get("rating") == "down"]
+    liked_block = ""
+    disliked_block = ""
+    if liked:
+        liked_block = "\nOUTFITS BRIAN LIKED — lean toward similar combinations:\n" + "\n".join(f"- {r['pieces_summary']}" for r in liked[-5:])
+    if disliked:
+        disliked_block = "\nOUTFITS BRIAN DISLIKED — avoid these combinations:\n" + "\n".join(f"- {r['pieces_summary']}" for r in disliked[-5:])
+
+    prompt = f"""You are Claudio, Brian's personal stylist. Compose today's outfit.
+
+BRIAN'S STYLE PROFILE:
+{style_ctx[:3500]}
+
+TODAY:
+- Weather: {weather_str}
+- Temperature tier: {tier}
+- Context: {context_label}
+{recent_block}{liked_block}{disliked_block}
+
+BRIAN'S WARDROBE (use ONLY items from this list — exact names):
+{json.dumps(wardrobe, indent=2)}
+
+Compose a complete outfit. Rules:
+- Every piece must come from the wardrobe list above
+- Match the temperature tier and context
+- 3+ distinct textures minimum
+- Proper layering for the temperature
+- Follow all style rules in the profile strictly
+
+Return a JSON object with exactly this structure — no markdown, no extra text:
+{{
+  "name": "Short evocative name for the look (2-4 words)",
+  "pieces": [
+    {{
+      "category": "OUTERWEAR|TOPS|LAYER|PANTS|SHOES|ACCESSORIES|BELT",
+      "name": "exact item name from wardrobe",
+      "color": "#hexcode",
+      "color_name": "color word",
+      "material": "material if known",
+      "brand": "brand if known"
+    }}
+  ],
+  "stylist_note": "2-3 sentences: why this outfit works today. Specific to weather and context. Confident, direct tone — like an Italian stylist who knows Brian well."
+}}"""
+
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1200,
+        temperature=0.8,
+    )
+
+    raw = response.choices[0].message.content.strip()
+    raw = re.sub(r"^```(?:json)?\s*", "", raw)
+    raw = re.sub(r"\s*```$", "", raw)
+
+    return json.loads(raw)
 
 
 def weather_description(weather: dict) -> str:
