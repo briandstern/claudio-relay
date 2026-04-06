@@ -45,6 +45,21 @@ def send_alert(message: str):
         print(f"[alert] failed to send Telegram alert: {e}")
 
 
+def download_photo(file_id: str) -> bytes:
+    """Download a photo from Telegram by file_id, return raw bytes."""
+    with httpx.Client(timeout=30) as client:
+        r = client.get(
+            f"{_base_url()}/getFile",
+            params={"file_id": file_id},
+        )
+        file_path = r.json()["result"]["file_path"]
+        r2 = client.get(
+            f"https://api.telegram.org/file/bot{TELEGRAM_BOT_TOKEN}/{file_path}"
+        )
+        r2.raise_for_status()
+        return r2.content
+
+
 def register_webhook(service_url: str):
     """Register the Telegram webhook. Safe to call on every startup."""
     webhook_url = f"{service_url}/telegram-webhook"

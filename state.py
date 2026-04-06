@@ -1,6 +1,6 @@
 """
 State management backed by a Railway Volume (or local directory).
-All persistent state: rotation indices, last_sent date, claudio_context.
+All persistent state: rotation indices, last_sent date, claudio_context, wardrobe.
 """
 import json
 import os
@@ -11,6 +11,7 @@ DATA_DIR = Path(os.environ.get("DATA_DIR", "/data"))
 STATE_FILE = DATA_DIR / "state.json"
 CONTEXT_FILE = DATA_DIR / "claudio_context.md"
 IMAGE_CACHE_DIR = DATA_DIR / "image_cache"
+WARDROBE_FILE = DATA_DIR / "wardrobe.json"
 
 
 def _ensure_dirs():
@@ -63,6 +64,35 @@ def get_context() -> str:
     if repo_copy.exists():
         return repo_copy.read_text(encoding="utf-8")
     return ""
+
+
+def get_wardrobe() -> list:
+    """Return list of wardrobe items from volume."""
+    _ensure_dirs()
+    if WARDROBE_FILE.exists():
+        try:
+            return json.loads(WARDROBE_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return []
+
+
+def add_wardrobe_items(items: list):
+    """Append new items to wardrobe.json, skipping duplicates by name+category."""
+    existing = get_wardrobe()
+    existing_keys = {
+        (i.get("category", "").upper(), i.get("name", "").lower())
+        for i in existing
+    }
+    added = []
+    for item in items:
+        key = (item.get("category", "").upper(), item.get("name", "").lower())
+        if key not in existing_keys:
+            existing.append(item)
+            existing_keys.add(key)
+            added.append(item)
+    WARDROBE_FILE.write_text(json.dumps(existing, indent=2), encoding="utf-8")
+    return added
 
 
 def append_context(text: str):

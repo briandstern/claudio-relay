@@ -123,17 +123,37 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
 
 @app.post("/telegram-webhook")
 async def telegram_webhook(request: Request):
-    """Receive Telegram messages from Brian and append to context on the volume."""
+    """Receive Telegram messages/photos from Brian."""
     try:
         update = await request.json()
     except Exception:
         return {"ok": True}
 
     message = update.get("message", {})
-    text = message.get("text", "").strip()
     chat_id = str(message.get("chat", {}).get("id", ""))
 
-    if not text or chat_id != str(TELEGRAM_CHAT_ID) or text.startswith("/"):
+    if chat_id != str(TELEGRAM_CHAT_ID):
+        return {"ok": True}
+
+    # ── Photo: catalog clothing items ──────────────────────────────────────
+    if message.get("photo"):
+        import wardrobe_catalog
+        try:
+            # Telegram sends multiple resolutions — use the largest
+            file_id = message["photo"][-1]["file_id"]
+            image_bytes = telegram_client.download_photo(file_id)
+            items = wardrobe_catalog.extract_items_from_photo(image_bytes)
+            added = state.add_wardrobe_items(items)
+            confirmation = wardrobe_catalog.format_confirmation(added)
+            telegram_client.send_message(confirmation)
+        except Exception as e:
+            print(f"[wardrobe] photo catalog failed: {e}")
+            telegram_client.send_message(f"Couldn't catalog that photo: {e}")
+        return {"ok": True}
+
+    # ── Text: style feedback → context ────────────────────────────────────
+    text = message.get("text", "").strip()
+    if not text or text.startswith("/"):
         return {"ok": True}
 
     state.append_context(text)
