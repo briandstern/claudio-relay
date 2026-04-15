@@ -58,6 +58,33 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/debug")
+def debug_state(authorization: str = Header(None)):
+    """Expose current Volume state for diagnostics — rotation indices, last sent, wardrobe count."""
+    _auth(authorization)
+    wardrobe = state.get_wardrobe()
+    recent = state.get_recent_outfits(10)
+    # Read raw state for rotation indices
+    raw_rotation = {}
+    try:
+        import json
+        state_path = state.DATA_DIR / "state.json"
+        if state_path.exists():
+            raw = json.loads(state_path.read_text())
+            raw_rotation = raw.get("rotation", {})
+    except Exception as e:
+        raw_rotation = {"error": str(e)}
+
+    return {
+        "last_sent": state.get_last_sent(),
+        "wardrobe_items": len(wardrobe),
+        "recent_outfits": recent,
+        "rotation_indices": raw_rotation,
+        "data_dir": str(state.DATA_DIR),
+        "state_file_exists": (state.DATA_DIR / "state.json").exists(),
+    }
+
+
 @app.post("/generate-and-send")
 def generate_and_send(request: GenerateRequest, authorization: str = Header(None)):
     """
