@@ -1,7 +1,7 @@
 """
 Claudio Cron Runner — deployed as a Railway Cron Service.
-Scheduled: 0 11 * * * UTC  (= 6am ET in winter / 7am ET in summer)
-Verifies local ET hour before firing to avoid accidental double-runs.
+Scheduled: 0 10 * * * UTC  (= 6am ET in summer EDT / 5am ET in winter EST)
+The app's last_sent idempotency prevents duplicate sends if the schedule drifts.
 """
 import os
 import sys
@@ -16,17 +16,11 @@ RAILWAY_URL = os.environ.get(
 )
 API_SECRET = os.environ.get("API_SECRET", "")
 ET = ZoneInfo("America/New_York")
-TARGET_HOUR = 6  # 6am ET
 
 
 def main():
     now_et = datetime.now(ET)
     print(f"[cron] running at {now_et.strftime('%Y-%m-%d %H:%M %Z')}")
-
-    # Guard: only fire at the correct local hour
-    if now_et.hour != TARGET_HOUR:
-        print(f"[cron] hour is {now_et.hour}, expected {TARGET_HOUR} ET — skipping")
-        sys.exit(0)
 
     last_error = None
     for attempt in range(1, 3):
