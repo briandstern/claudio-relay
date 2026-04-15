@@ -74,7 +74,12 @@ def load_outfit_db() -> dict:
 
 
 def select_outfit(tier: str, context: str) -> dict:
-    """Select the next outfit using rotation state. Falls back to adjacent tier if needed."""
+    """Select today's outfit using date-based rotation — works without persistent Volume state.
+    Each tier+context pair has a unique offset so they don't all cycle in lockstep.
+    Falls back to adjacent tier if needed."""
+    import hashlib as _hl
+    from datetime import date as _date
+
     db = load_outfit_db()
     outfits = db.get(tier, {}).get(context, [])
 
@@ -91,12 +96,19 @@ def select_outfit(tier: str, context: str) -> dict:
     if not outfits:
         raise ValueError(f"No outfits found for tier={tier} context={context}")
 
-    idx = state.get_rotation_index(tier, context) % len(outfits)
+    # Date-based rotation: advances every day without needing persistent Volume state.
+    # Uses (day_number + tier_offset) % outfit_count so:
+    #   - Different outfit every calendar day for the same tier/context
+    #   - Different tiers/contexts don't land on the same index simultaneously
+    day_num = (_date.today() - _date(2026, 1, 1)).days
+    tier_offset = int(_hl.md5(f"{tier}:{context}".encode()).hexdigest()[:4], 16)
+    idx = (day_num + tier_offset) % len(outfits)
     return outfits[idx]
 
 
 def advance_rotation(tier: str, context: str):
-    """Advance rotation index after a successful send."""
+    """Kept for compatibility — date-based selection no longer relies on this,
+    but state is still updated for diagnostics."""
     db = load_outfit_db()
     outfits = db.get(tier, {}).get(context, [])
     if not outfits:
