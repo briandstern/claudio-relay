@@ -231,7 +231,8 @@ def compose_outfit(weather: dict, context: str) -> dict:
     from openai import OpenAI
 
     wardrobe = state.get_wardrobe()
-    if not wardrobe:
+    if len(wardrobe) < 10:
+        # Too few items to compose varied outfits — fall back to curated static DB.
         tier = get_tier(weather["feels_like_f"])
         return select_outfit(tier, context)
 
