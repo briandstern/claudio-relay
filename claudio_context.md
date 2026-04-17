@@ -54,6 +54,28 @@ Clear Street is a fintech, not Goldman Sachs. Some people wear work-appropriate 
 
 ---
 
+## Preferred Brands
+
+These are the brands that define the aesthetic — "cool millennial dad meets fintech exec." Use them when composing outfits from the wardrobe or suggesting specific pieces.
+
+| Category | Go-To Brands |
+|----------|-------------|
+| **Casual basics & tops** | Buck Mason, Marine Layer, Uniqlo |
+| **Elevated casualwear** | Todd Snyder, Alex Mill, Faherty |
+| **Smart casual / office** | J.Crew, Banana Republic, COS, Mango |
+| **Outerwear** | Todd Snyder, Faherty, Marine Layer, Barbour |
+| **Trousers (non-denim)** | Todd Snyder, Suitsupply (non-suiting line), COS |
+| **Denim** | AG Jeans |
+| **Sneakers** | Veja, Nike (retro silhouettes, not running) |
+| **Boots** | Thursday Boot Co., Allen Edmonds (Chelsea only) |
+| **Loafers** | G.H. Bass |
+
+**Brand voice by occasion:**
+- **Office:** Todd Snyder, Suitsupply, COS, Alex Mill — polished without being stuffy
+- **Weekend:** Buck Mason, Marine Layer, Faherty — relaxed but intentional, not suburban
+
+---
+
 ## Color Palette
 
 **Core neutrals:** Navy, charcoal, black, white, cream/oatmeal
