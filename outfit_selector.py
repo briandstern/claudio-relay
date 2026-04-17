@@ -231,7 +231,8 @@ def compose_outfit(weather: dict, context: str) -> dict:
     from openai import OpenAI
 
     wardrobe = state.get_wardrobe()
-    if not wardrobe:
+    if len(wardrobe) < 10:
+        # Too few items to compose varied outfits — fall back to curated static DB.
         tier = get_tier(weather["feels_like_f"])
         return select_outfit(tier, context)
 
@@ -249,9 +250,15 @@ def compose_outfit(weather: dict, context: str) -> dict:
 
     recent_block = ""
     if recent:
-        names = [r["name"] for r in recent[-7:] if r.get("name")]
-        if names:
-            recent_block = "\nRECENT OUTFITS — do not repeat these exact combinations:\n" + "\n".join(f"- {n}" for n in names)
+        recent_lines = []
+        for r in recent[-7:]:
+            # Use pieces_summary so GPT-4o sees the actual garments, not just the name.
+            # Deduplicating by name alone lets it invent a fresh name while repeating the same pieces.
+            summary = r.get("pieces_summary") or r.get("name")
+            if summary:
+                recent_lines.append(f"- {summary}")
+        if recent_lines:
+            recent_block = "\nRECENT OUTFITS (pieces used) — do not repeat these garment combinations:\n" + "\n".join(recent_lines)
 
     liked = [r for r in ratings if r.get("rating") == "up"]
     disliked = [r for r in ratings if r.get("rating") == "down"]

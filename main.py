@@ -104,7 +104,10 @@ def generate_and_send(request: GenerateRequest, authorization: str = Header(None
     if outfit is None:
         context = get_day_context()
         wardrobe = state.get_wardrobe()
-        if wardrobe:
+        # Need enough wardrobe items for meaningful variety before using AI composition.
+        # With fewer than 10 items there may be only one possible outfit — fall back to
+        # the curated static DB which always has variety.
+        if len(wardrobe) >= 10:
             outfit = compose_outfit(weather, context)
         else:
             tier = get_tier(weather["feels_like_f"])
